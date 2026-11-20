@@ -1,6 +1,6 @@
 """Découpe une vidéo en images WebP pour une animation pilotée par le scroll.
 
-usage : python3 tools/build_frames.py <video.mp4> <dossier> DX0 DY0 DX1 DY1 MX0 MX1
+usage : python3 tools/build_frames.py <video.mp4 | dossier d'images> <dossier> DX0 DY0 DX1 DY1 MX0 MX1
   DX0 DY0 DX1 DY1 : cadre paysage pour ordinateur (exclut le filigrane)
   MX0 MX1         : bande portrait pour téléphone (toute la hauteur)
 Produit desktop/NNN.webp (toutes les images), mobile/NNN.webp (une sur deux)
@@ -19,13 +19,16 @@ QUALITY = 68
 def main():
     video, out = sys.argv[1], Path(sys.argv[2])
     dx0, dy0, dx1, dy1, mx0, mx1 = map(int, sys.argv[3:9])
-    capture = cv2.VideoCapture(video)
     frames = []
-    while True:
-        ok, frame = capture.read()
-        if not ok:
-            break
-        frames.append(Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)))
+    if Path(video).is_dir():
+        frames = [Image.open(p).convert('RGB') for p in sorted(Path(video).glob('*.png')) + sorted(Path(video).glob('*.jpg'))]
+    else:
+        capture = cv2.VideoCapture(video)
+        while True:
+            ok, frame = capture.read()
+            if not ok:
+                break
+            frames.append(Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)))
     meta = {}
     for sub, box, picks in (
         ('desktop', (dx0, dy0, dx1, dy1), list(range(len(frames)))),

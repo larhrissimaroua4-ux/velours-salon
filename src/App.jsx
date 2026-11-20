@@ -11,7 +11,7 @@ export default function App() {
   const { t, localize } = useI18n()
 
   const slides = useMemo(() => {
-    const list = [{ id: 'accueil', label: t('nav.home'), scrub: true, content: ({ active, scrub }) => <HeroSlide active={active} scrub={scrub} /> }]
+    const list = [{ id: 'accueil', label: t('nav.home'), theme: 'video', scrub: true, content: ({ active, scrub }) => <HeroSlide active={active} scrub={scrub} /> }]
     services.forEach((service, i) => list.push({ id: service.id, label: localize(service.label), content: ({ go }) => <ServiceSlide service={service} index={i} onBook={() => go(services.length + 2)} /> }))
     list.push({ id: 'tarifs', label: t('nav.prices'), content: () => <PricesSlide /> })
     list.push({ id: 'contact', label: t('nav.contact'), theme: 'dark', content: () => <ContactSlide /> })

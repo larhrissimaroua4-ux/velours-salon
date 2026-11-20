@@ -22,7 +22,7 @@ function loadOrder(count) {
 }
 
 /**
- * Accueil. Dans l'arche, le satin bordeaux dévoile le visage AU RYTHME DU
+ * Accueil plein écran. Le satin bordeaux dévoile le visage AU RYTHME DU
  * SCROLL : le deck fait avancer `scrub.target` (0 → 1) tant que la vidéo n'est
  * pas finie, puis passe à la slide suivante. Les images sont dessinées dans
  * un canvas (plus précis et plus fluide qu'une vidéo, y compris sur iPhone).
@@ -49,7 +49,7 @@ export default function HeroSlide({ active, scrub }) {
       if (!meta) return
       const box = canvas.getBoundingClientRect()
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
-      canvas.width = Math.min(Math.round(box.width * dpr), meta.width)
+      canvas.width = Math.min(Math.round(box.width * dpr), Math.round(meta.width * 1.5))
       canvas.height = Math.round((canvas.width * box.height) / Math.max(box.width, 1))
       drawn = -1
     }
@@ -63,7 +63,7 @@ export default function HeroSlide({ active, scrub }) {
       const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight)
       const w = image.naturalWidth * scale
       const h = image.naturalHeight * scale
-      ctx.drawImage(image, (width - w) / 2, (height - h) * 0.3, w, h)
+      ctx.drawImage(image, (width - w) / 2, (height - h) * 0.35, w, h)
       drawn = frame
     }
 
@@ -71,9 +71,9 @@ export default function HeroSlide({ active, scrub }) {
       .then((response) => response.json())
       .then((data) => {
         if (cancelled) return
-        meta = data
         const set = mobile ? 'mobile' : 'desktop'
-        const count = data[set].count
+        meta = data[set]
+        const count = meta.count
         images.length = count
         resize()
         loadOrder(count).forEach((i, rank) => {
@@ -115,11 +115,12 @@ export default function HeroSlide({ active, scrub }) {
   }, [scrub])
 
   return (
-    <div data-hero className={`${styles.layout} ${styles.hero}`}>
-      <span className={styles.giant} aria-hidden="true">
-        <Split text="Velours" />
-      </span>
-      <div className={styles.copy}>
+    <div data-hero className={styles.heroFull}>
+      <div data-zoom className={styles.heroMedia}>
+        <canvas ref={canvasRef} className={styles.heroCanvas} aria-hidden="true" />
+      </div>
+      <div className={styles.heroShade} aria-hidden="true" />
+      <div className={styles.heroCopy}>
         <p data-fade className={styles.eyebrow}>
           <span data-line className={styles.rule} />
           {hero.eyebrow}
@@ -141,21 +142,6 @@ export default function HeroSlide({ active, scrub }) {
             <span />
           </span>
         </p>
-      </div>
-      <div className={styles.visual}>
-        <div data-arch className={styles.arch}>
-          <div data-zoom className={styles.archInner}>
-            <canvas ref={canvasRef} className={styles.video} aria-hidden="true" />
-          </div>
-        </div>
-        <svg data-badge className={styles.ring} viewBox="0 0 200 200" aria-hidden="true">
-          <defs>
-            <path id="hero-ring" d="M100 100m-80 0a80 80 0 1 1 160 0a80 80 0 1 1-160 0" />
-          </defs>
-          <text>
-            <textPath href="#hero-ring" textLength="498" lengthAdjust="spacing">{hero.ring}</textPath>
-          </text>
-        </svg>
       </div>
     </div>
   )

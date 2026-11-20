@@ -25,6 +25,11 @@
   will-change: clip-path, transform;
 }
 
+.slide[data-theme='video'] {
+  background: #0c0607;
+  color: var(--milk);
+}
+
 .slide[data-theme='dark'] {
   background: var(--wine);
   color: var(--milk);
@@ -249,6 +254,10 @@
     background: linear-gradient(to top, var(--milk) 55%, transparent);
     pointer-events: none;
     transition: opacity 0.6s;
+  }
+
+  .deck[data-video] .bottomFade {
+    opacity: 0;
   }
 
   .deck[data-dark] .bottomFade {

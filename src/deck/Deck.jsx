@@ -65,6 +65,8 @@ export default function Deck({ slides }) {
   const menuRef = useRef(null)
   const busyRef = useRef(false)
   const unlockRef = useRef(0)
+  // fin d'une slide « au scroll » : il faut un nouveau geste pour continuer
+  const freshRef = useRef(false)
   const enterRef = useRef(new Map())
   // Progression des slides « au scroll » (scrub) : { target } lu par la slide
   const scrubsRef = useRef(new Map())
@@ -138,7 +140,10 @@ export default function Deck({ slides }) {
       if ((delta > 0 && scrub.target >= 1) || (delta < 0 && scrub.target <= 0)) return false
       scrub.target = clamp01(scrub.target + delta)
       // fin atteinte : l'inertie du geste ne doit pas enchaîner sur la slide suivante
-      if (scrub.target === 0 || scrub.target === 1) unlockRef.current = performance.now()
+      if (scrub.target === 0 || scrub.target === 1) {
+        unlockRef.current = performance.now()
+        freshRef.current = true
+      }
       return true
     },
     [scrubFor],
@@ -182,6 +187,10 @@ export default function Deck({ slides }) {
       const now = performance.now()
       const quiet = now - lastWheel
       lastWheel = now
+      if (freshRef.current) {
+        if (quiet < 350) return
+        freshRef.current = false
+      }
       // l'inertie des pavés tactiles ne doit pas enchaîner plusieurs slides
       if (busyRef.current || (now - unlockRef.current < 900 && quiet < 160)) {
         acc = 0
@@ -282,14 +291,15 @@ export default function Deck({ slides }) {
     }
   }, [menuOpen])
 
-  const dark = slides[index].theme === 'dark'
+  const theme = slides[index].theme
+  const dark = theme === 'dark' || theme === 'video'
   const pick = (i) => {
     setMenuOpen(false)
     window.setTimeout(() => go(i), menuOpen ? 450 : 0)
   }
 
   return (
-    <div className={styles.deck} data-dark={dark || undefined}>
+    <div className={styles.deck} data-dark={dark || undefined} data-video={theme === 'video' || undefined}>
       <header className={styles.header}>
         <button type="button" className={styles.logo} onClick={() => go(0)}>
           VELOURS

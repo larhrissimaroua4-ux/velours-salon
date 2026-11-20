@@ -191,6 +191,7 @@ export default function Deck({ slides }) {
   useEffect(() => {
     let lastWheel = 0
     let acc = 0
+    let recent = [] // dernières amplitudes : un geste neuf « remonte », l'élan décroît
     const onWheel = (event) => {
       if (menuRef.current?.dataset.open) return
       const scroller = event.target.closest?.('[data-scroll]')
@@ -199,12 +200,21 @@ export default function Deck({ slides }) {
       const now = performance.now()
       const quiet = now - lastWheel
       lastWheel = now
-      // un nouveau geste est exigé après une transition ou la fin de l'animation au scroll
-      if (busyRef.current || (freshRef.current && quiet < GESTURE_GAP)) {
+      const size = Math.abs(event.deltaY)
+      // nouveau geste : silence, ou amplitude qui remonte nettement pendant l'élan du précédent
+      const rising = recent.length >= 3 && size >= 8 && size > 1.6 * Math.max(...recent.slice(-3))
+      recent = quiet > GESTURE_GAP ? [size] : [...recent.slice(-5), size]
+      if (busyRef.current) {
         acc = 0
         return
       }
-      freshRef.current = false
+      if (freshRef.current) {
+        if (quiet < GESTURE_GAP && !rising) {
+          acc = 0
+          return
+        }
+        freshRef.current = false
+      }
       if (quiet > 300) acc = 0
       const pixels = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1)
       if (scrubBy(pixels * WHEEL_SPEED)) {

@@ -121,6 +121,16 @@
   object-fit: cover;
 }
 
+.video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 30%;
+  background: #0c0607;
+}
+
 .monogram {
   font-family: var(--serif);
   font-size: min(42svh, 26rem);
@@ -575,7 +585,17 @@
     font-size: 15px;
   }
 
-  .monogram {
+  .video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 30%;
+  background: #0c0607;
+}
+
+.monogram {
     font-size: 30svh;
   }
 

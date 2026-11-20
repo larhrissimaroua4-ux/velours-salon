@@ -49,7 +49,7 @@ const canScroll = (el, dir) => (dir > 0 ? el.scrollTop + el.clientHeight < el.sc
  * Diaporama plein écran : molette, glissé, clavier, menu et flèches.
  * Une slide dont le contenu dépasse défile d'abord en interne ([data-scroll]).
  *
- * @param {{ slides: { id: string, label: string, theme?: 'dark', content: (go: (i: number) => void) => React.ReactNode }[] }} props
+ * @param {{ slides: { id: string, label: string, theme?: 'dark', content: (ctx: { go: (i: number) => void, active: boolean }) => React.ReactNode }[] }} props
  */
 export default function Deck({ slides }) {
   const { t, toggle } = useI18n()
@@ -277,7 +277,7 @@ export default function Deck({ slides }) {
             inert={i !== index}
           >
             <div data-scroll className={styles.scroll}>
-              {slide.content(go)}
+              {slide.content({ go, active: i === index })}
             </div>
           </section>
         ))}

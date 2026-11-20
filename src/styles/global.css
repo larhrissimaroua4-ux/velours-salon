@@ -1,0 +1,89 @@
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('/fonts/fraunces-var-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Fraunces';
+  font-style: italic;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('/fonts/fraunces-italic-var-latin.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/inter-var-latin.woff2') format('woff2');
+}
+
+:root {
+  --milk: #f7f3ee;
+  --wine: #6e1f2e;
+  --wine-deep: #4a1420;
+  --rose: #9b3a4e;
+  --blush: #e8d5cf;
+  --blush-soft: #f0e4df;
+  --blush-line: #d9bdb5;
+  --ink-soft: #7a5a60;
+  --line: rgb(110 31 46 / 0.16);
+  --serif: 'Fraunces', 'Times New Roman', serif;
+  --sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --gutter: 1.25rem;
+  --gutter-wide: clamp(1.25rem, 6vw, 6rem);
+  color-scheme: light;
+}
+
+@media (min-width: 761px) {
+  :root {
+    --gutter: clamp(1.25rem, 3vw, 2.5rem);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--milk);
+}
+
+body {
+  color: var(--wine);
+  font-family: var(--sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+::selection {
+  background: var(--wine);
+  color: var(--milk);
+}
+
+:focus-visible {
+  outline: 2px solid var(--rose);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

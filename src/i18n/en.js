@@ -1,0 +1,25 @@
+export default {
+  nav: { menu: 'Menu', close: 'Close', book: 'Book', switch: 'Français', switchShort: 'FR', home: 'Home', prices: 'Prices', contact: 'Contact' },
+  hero: {
+    eyebrow: 'Beauty salon',
+    title: ['Take', 'the time', 'to glow.'],
+    lead: 'Face, hair, nails, make-up. One place, expert hands, an hour just for you.',
+    hint: 'Scroll',
+    ring: 'BEAUTY SALON · VELOURS · SINCE 2026 · ',
+  },
+  service: { from: 'from', currency: 'DH', book: 'Book this treatment' },
+  prices: { eyebrow: 'Prices', title: ['Our', 'treatments.'], note: 'Prices in dirhams. Bridal packages and home visits on request.' },
+  contact: {
+    eyebrow: 'Appointments',
+    title: ['Your moment', 'is waiting.'],
+    lead: 'Book in one message: tell us the treatment and the day, we confirm your slot.',
+    hoursLabel: 'Opening hours',
+    addressLabel: 'Address',
+    whatsapp: 'Book on WhatsApp',
+    instagram: 'Instagram',
+    maps: 'Directions',
+    message: 'Hello VELOURS, I would like to book an appointment.',
+    footer: 'Beauty salon',
+  },
+  deck: { next: 'Next slide', prev: 'Previous slide', goTo: 'Go to' },
+}

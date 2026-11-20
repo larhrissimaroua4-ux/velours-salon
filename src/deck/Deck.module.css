@@ -1,0 +1,452 @@
+.deck {
+  --fg: var(--wine);
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--milk);
+  color: var(--fg);
+}
+
+.deck[data-dark] {
+  --fg: var(--milk);
+}
+
+.slides {
+  position: absolute;
+  inset: 0;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--milk);
+  color: var(--wine);
+  will-change: clip-path, transform;
+}
+
+.slide[data-theme='dark'] {
+  background: var(--wine);
+  color: var(--milk);
+}
+
+.scroll {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+
+.scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.curtain {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+  background: var(--wine-deep);
+}
+
+.curtain[data-tone='blush'] {
+  background: var(--blush);
+}
+
+/* ---- En-tête */
+.header {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: max(1.2rem, env(safe-area-inset-top)) var(--gutter) 1rem;
+  color: var(--fg);
+  transition: color 0.8s var(--ease-out) 0.3s;
+  pointer-events: none;
+}
+
+.header > * {
+  pointer-events: auto;
+}
+
+.logo {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 400;
+  letter-spacing: 0.34em;
+  cursor: pointer;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.lang,
+.book,
+.burger {
+  height: 2.7rem;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.4s, color 0.4s, border-color 0.4s;
+}
+
+.lang {
+  width: 2.7rem;
+}
+
+.book {
+  padding: 0 1.3rem;
+  background: var(--fg);
+  border-color: var(--fg);
+  color: var(--milk);
+}
+
+.deck[data-dark] .book {
+  color: var(--wine);
+}
+
+.lang:hover,
+.burger:hover {
+  background: var(--fg);
+  color: var(--milk);
+}
+
+.deck[data-dark] .lang:hover,
+.deck[data-dark] .burger:hover {
+  color: var(--wine);
+}
+
+.burger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0 1.1rem;
+}
+
+.burgerLines {
+  position: relative;
+  width: 1rem;
+  height: 0.45rem;
+}
+
+.burgerLines::before,
+.burgerLines::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: currentColor;
+  transition: transform 0.5s var(--ease-out), top 0.5s var(--ease-out);
+}
+
+.burgerLines::before {
+  top: 0;
+}
+
+.burgerLines::after {
+  top: 100%;
+}
+
+.burgerLines[data-open]::before {
+  top: 50%;
+  transform: rotate(45deg);
+}
+
+.burgerLines[data-open]::after {
+  top: 50%;
+  transform: rotate(-45deg);
+}
+
+/* ---- Index latéral */
+.dots {
+  position: fixed;
+  right: var(--gutter);
+  top: 50%;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  transform: translateY(-50%);
+}
+
+.dot {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 2rem;
+  height: 1.6rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--fg);
+  cursor: pointer;
+  transition: color 0.8s 0.3s;
+}
+
+.dot::after {
+  content: '';
+  width: 0.9rem;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.35;
+  transition: width 0.6s var(--ease-out), opacity 0.6s;
+}
+
+.dot[data-active]::after,
+.dot:hover::after {
+  width: 2rem;
+  opacity: 1;
+}
+
+.dotLabel {
+  position: absolute;
+  right: 2.8rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(0.5rem);
+  transition: opacity 0.4s, transform 0.5s var(--ease-out);
+  pointer-events: none;
+}
+
+.dot:hover .dotLabel {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---- Compteur + flèches */
+.bottomFade {
+  display: none;
+}
+
+@media (max-width: 760px), (orientation: portrait) and (max-width: 1000px) {
+  .bottomFade {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 14;
+    display: block;
+    height: 5.2rem;
+    background: linear-gradient(to top, var(--milk) 55%, transparent);
+    pointer-events: none;
+    transition: opacity 0.6s;
+  }
+
+  .deck[data-dark] .bottomFade {
+    background: linear-gradient(to top, var(--wine) 55%, transparent);
+  }
+}
+
+.counter {
+  position: fixed;
+  left: var(--gutter);
+  bottom: max(1.4rem, env(safe-area-inset-bottom));
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+  transition: color 0.8s 0.3s;
+}
+
+.counterNow {
+  display: inline-block;
+  overflow: hidden;
+  height: 1.1em;
+  line-height: 1.1;
+}
+
+.counterDigit {
+  display: inline-block;
+  animation: digit 1s var(--ease-out) 0.5s both;
+}
+
+@keyframes digit {
+  from {
+    transform: translateY(110%);
+  }
+}
+
+.counterBar {
+  position: relative;
+  width: 5rem;
+  height: 1px;
+  background: color-mix(in srgb, currentColor 25%, transparent);
+}
+
+.counterBar span {
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  transform-origin: left;
+  transition: transform 1.2s var(--ease-out) 0.4s;
+}
+
+.arrows {
+  position: fixed;
+  right: var(--gutter);
+  bottom: max(1.1rem, env(safe-area-inset-bottom));
+  z-index: 15;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.arrows button {
+  width: 2.7rem;
+  height: 2.7rem;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  background: none;
+  color: var(--fg);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.4s, color 0.4s, opacity 0.4s;
+}
+
+.arrows button:hover:not(:disabled) {
+  background: var(--fg);
+  color: var(--milk);
+}
+
+.deck[data-dark] .arrows button:hover:not(:disabled) {
+  color: var(--wine);
+}
+
+.arrows button:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+/* ---- Menu plein écran */
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: 18;
+  display: flex;
+  align-items: center;
+  padding: 6rem var(--gutter) 3rem;
+  background: var(--wine);
+  color: var(--milk);
+  visibility: hidden;
+}
+
+.menuList {
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+  width: min(60rem, 100%);
+}
+
+.menuRow {
+  overflow: hidden;
+  border-bottom: 1px solid color-mix(in srgb, var(--milk) 16%, transparent);
+}
+
+.menuLink {
+  display: flex;
+  align-items: baseline;
+  gap: 1.4rem;
+  width: 100%;
+  padding: 0.7rem 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--serif);
+  font-size: clamp(1.9rem, 5.2vh, 3.6rem);
+  font-weight: 320;
+  line-height: 1.1;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.4s, padding 0.6s var(--ease-out);
+}
+
+.menuLink:hover,
+.menuLink[data-active] {
+  padding-left: 1rem;
+  color: var(--blush);
+  font-style: italic;
+}
+
+.menuIndex {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-style: normal;
+  letter-spacing: 0.14em;
+  opacity: 0.6;
+}
+
+/* ---- Intro */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 1.4rem;
+  background: var(--wine);
+  color: var(--milk);
+}
+
+.introName {
+  font-family: var(--serif);
+  font-size: clamp(3.4rem, 13vw, 11rem);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1;
+}
+
+.introLine {
+  width: min(16rem, 50vw);
+  height: 1px;
+  background: var(--blush);
+  transform-origin: left;
+}
+
+@media (max-width: 760px) {
+  .dots,
+  .book {
+    display: none;
+  }
+
+  .burgerLabel {
+    display: none;
+  }
+
+  .burger {
+    width: 2.7rem;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .logo {
+    font-size: 1rem;
+    letter-spacing: 0.26em;
+  }
+
+  .counterBar {
+    width: 3rem;
+  }
+}

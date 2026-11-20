@@ -13,14 +13,15 @@ export const salon = {
 }
 
 /**
- * Les prestations. `image` (facultatif) : chemin d'une photo dans /public/images ;
- * sans photo, l'arche affiche l'illustration au trait `art`.
+ * Les prestations. `image` (facultatif) : base du chemin d'une photo préparée par
+ * tools/build_service_image.py (sans « .webp ») ; sans photo, l'arche affiche
+ * l'illustration au trait `art`.
  */
 export const services = [
   {
     id: 'visage',
     art: 'serum',
-    image: null,
+    image: '/images/services/visage',
     label: { fr: 'Soins du visage', en: 'Facials' },
     title: { fr: ['Une peau', 'de velours.'], en: ['Skin like', 'velvet.'] },
     text: {

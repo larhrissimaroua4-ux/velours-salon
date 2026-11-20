@@ -48,7 +48,7 @@ export default function ServiceSlide({ service, index, onBook }) {
       <div className={styles.visual}>
         <div data-arch className={styles.arch}>
           <div data-zoom className={styles.archInner}>
-            {service.image ? <img src={service.image} alt="" className={styles.photo} /> : <LineArt name={service.art} className={styles.art} />}
+            {service.image ? <img src={`${service.image}.webp`} srcSet={`${service.image}-sm.webp 560w, ${service.image}.webp 900w`} sizes="(max-width: 760px) 60vw, 34vw" alt="" className={styles.photo} decoding="async" /> : <LineArt name={service.art} className={styles.art} />}
           </div>
         </div>
         <div data-badge className={styles.badge}>

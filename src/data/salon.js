@@ -39,7 +39,7 @@ export const services = [
   {
     id: 'cheveux',
     art: 'scissors',
-    image: null,
+    image: '/images/services/cheveux',
     label: { fr: 'Coiffure', en: 'Hair' },
     title: { fr: ['Le geste', 'juste.'], en: ['The right', 'touch.'] },
     text: {

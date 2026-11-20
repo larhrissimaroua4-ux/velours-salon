@@ -43,13 +43,19 @@ function leaveTimeline(el, dir) {
     .to(q('[data-zoom]'), { scale: 1.15, duration: 1.2, ease: 'power2.in' }, 0)
 }
 
+const clamp01 = (v) => Math.min(1, Math.max(0, v))
+// Molette : une vidéo entière ≈ 1 800 px de défilement ; doigt : ≈ 1,4 écran
+const WHEEL_SPEED = 1 / 1800
+const TOUCH_SPEED = 1 / 1.4
+
 const canScroll = (el, dir) => (dir > 0 ? el.scrollTop + el.clientHeight < el.scrollHeight - 2 : el.scrollTop > 2)
 
 /**
  * Diaporama plein écran : molette, glissé, clavier, menu et flèches.
  * Une slide dont le contenu dépasse défile d'abord en interne ([data-scroll]).
  *
- * @param {{ slides: { id: string, label: string, theme?: 'dark', content: (ctx: { go: (i: number) => void, active: boolean }) => React.ReactNode }[] }} props
+ * @param {{ slides: { id: string, label: string, theme?: 'dark',
+ *   scrub?: boolean, content: (ctx: { go, active, scrub }) => React.ReactNode }[] }} props
  */
 export default function Deck({ slides }) {
   const { t, toggle } = useI18n()
@@ -60,6 +66,13 @@ export default function Deck({ slides }) {
   const busyRef = useRef(false)
   const unlockRef = useRef(0)
   const enterRef = useRef(new Map())
+  // Progression des slides « au scroll » (scrub) : { target } lu par la slide
+  const scrubsRef = useRef(new Map())
+  const scrubFor = useCallback((i) => {
+    if (!slides[i]?.scrub) return null
+    if (!scrubsRef.current.has(i)) scrubsRef.current.set(i, { target: reducedMotion() ? 1 : 0, snap: false })
+    return scrubsRef.current.get(i)
+  }, [slides])
   const [index, setIndex] = useState(() => Math.max(0, slides.findIndex((s) => `#${s.id}` === window.location.hash)))
   const indexRef = useRef(index)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -80,6 +93,9 @@ export default function Deck({ slides }) {
       window.history.replaceState(null, '', `#${slides[next].id}`)
 
       enterRef.current.get(from)?.kill()
+      // en revenant par le bas, la slide « au scroll » est déjà terminée
+      const scrub = scrubFor(next)
+      if (scrub && !reducedMotion()) Object.assign(scrub, { target: dir > 0 ? 0 : 1, snap: true })
       const finish = () => {
         gsap.set(fromEl, { visibility: 'hidden', clearProps: 'transform,clipPath,zIndex' })
         gsap.set(gsap.utils.selector(fromEl)('[data-char],[data-fade],[data-zoom]'), { clearProps: 'all' })
@@ -111,7 +127,21 @@ export default function Deck({ slides }) {
         .fromTo(toEl, { clipPath: start }, { clipPath: end, duration: 1.15, ease: 'expo.inOut' }, 0.3)
         .call(() => enter.play(), null, 0.62)
     },
-    [count, slides],
+    [count, slides, scrubFor],
+  )
+
+  /** Fait avancer la slide « au scroll » ; renvoie true si le geste est consommé. */
+  const scrubBy = useCallback(
+    (delta) => {
+      const scrub = scrubFor(indexRef.current)
+      if (!scrub || busyRef.current || reducedMotion() || delta === 0) return false
+      if ((delta > 0 && scrub.target >= 1) || (delta < 0 && scrub.target <= 0)) return false
+      scrub.target = clamp01(scrub.target + delta)
+      // fin atteinte : l'inertie du geste ne doit pas enchaîner sur la slide suivante
+      if (scrub.target === 0 || scrub.target === 1) unlockRef.current = performance.now()
+      return true
+    },
+    [scrubFor],
   )
 
   // ---- Intro : le nom se dessine sur le bordeaux, puis le rideau se lève en arche
@@ -158,6 +188,11 @@ export default function Deck({ slides }) {
         return
       }
       if (quiet > 300) acc = 0
+      const pixels = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1)
+      if (scrubBy(pixels * WHEEL_SPEED)) {
+        acc = 0
+        return
+      }
       acc += event.deltaY
       if (Math.abs(acc) > 28) {
         go(indexRef.current + Math.sign(acc))
@@ -168,10 +203,20 @@ export default function Deck({ slides }) {
     let touch = null
     const onTouchStart = (event) => {
       const scroller = event.target.closest?.('[data-scroll]')
-      touch = { x: event.touches[0].clientX, y: event.touches[0].clientY, down: scroller && canScroll(scroller, 1), up: scroller && canScroll(scroller, -1) }
+      touch = { x: event.touches[0].clientX, y: event.touches[0].clientY, lastY: event.touches[0].clientY, used: false, down: scroller && canScroll(scroller, 1), up: scroller && canScroll(scroller, -1) }
+    }
+    const onTouchMove = (event) => {
+      if (!touch || menuRef.current?.dataset.open) return
+      const y = event.touches[0].clientY
+      if (scrubBy(((touch.lastY - y) / window.innerHeight) * TOUCH_SPEED)) touch.used = true
+      touch.lastY = y
     }
     const onTouchEnd = (event) => {
       if (!touch || menuRef.current?.dataset.open) return
+      if (touch.used) {
+        touch = null
+        return
+      }
       const dx = event.changedTouches[0].clientX - touch.x
       const dy = touch.y - event.changedTouches[0].clientY
       const dir = Math.sign(dy)
@@ -191,7 +236,7 @@ export default function Deck({ slides }) {
       else if (map[event.key]) {
         if (event.key === ' ' && event.target.closest?.('button, a')) return
         event.preventDefault()
-        go(indexRef.current + map[event.key])
+        if (!scrubBy(map[event.key] * 0.34)) go(indexRef.current + map[event.key])
       }
     }
 
@@ -202,17 +247,19 @@ export default function Deck({ slides }) {
 
     window.addEventListener('wheel', onWheel, { passive: false })
     window.addEventListener('touchstart', onTouchStart, { passive: true })
+    window.addEventListener('touchmove', onTouchMove, { passive: true })
     window.addEventListener('touchend', onTouchEnd, { passive: true })
     window.addEventListener('keydown', onKey)
     window.addEventListener('hashchange', onHash)
     return () => {
       window.removeEventListener('wheel', onWheel)
       window.removeEventListener('touchstart', onTouchStart)
+      window.removeEventListener('touchmove', onTouchMove)
       window.removeEventListener('touchend', onTouchEnd)
       window.removeEventListener('keydown', onKey)
       window.removeEventListener('hashchange', onHash)
     }
-  }, [go, count, slides])
+  }, [go, count, slides, scrubBy])
 
   // ---- Menu plein écran
   useEffect(() => {
@@ -277,7 +324,7 @@ export default function Deck({ slides }) {
             inert={i !== index}
           >
             <div data-scroll className={styles.scroll}>
-              {slide.content({ go, active: i === index })}
+              {slide.content({ go, active: i === index, scrub: scrubFor(i) })}
             </div>
           </section>
         ))}

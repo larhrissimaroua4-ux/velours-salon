@@ -226,7 +226,15 @@
   pointer-events: none;
 }
 
-/* ---- Accueil */
+/* ---- Accueil : mouvements liés à la progression du scroll (--p) */
+.hero .giant {
+  transform: translateX(calc(-50% - var(--p, 0) * 14%));
+}
+
+.hero .visual {
+  transform: translateY(calc(var(--p, 0) * -1.5%)) scale(calc(1 + var(--p, 0) * 0.05));
+}
+
 .hero .title {
   font-size: clamp(3rem, 7vw, 7.4rem);
 }
@@ -239,6 +247,21 @@
   font-size: 0.68rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
+}
+
+.hintBar {
+  position: relative;
+  width: 4.5rem;
+  height: 1px;
+  background: var(--line);
+}
+
+.hintBar span {
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  transform: scaleX(var(--p, 0));
+  transform-origin: left;
 }
 
 .hintMouse {

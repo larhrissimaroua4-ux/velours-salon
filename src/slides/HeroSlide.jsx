@@ -99,7 +99,7 @@ export default function HeroSlide({ active, scrub }) {
       }
       if (!activeRef.current && drawn >= 0) return
       const dt = Math.min(deltaMs / 1000, 0.1)
-      current += (scrub.target - current) * (1 - Math.exp(-dt * 8))
+      current += (scrub.target - current) * (1 - Math.exp(-dt * 5))
       if (Math.abs(scrub.target - current) < 0.0005) current = scrub.target
       const frame = Math.round(current * (images.length - 1))
       if (frame !== drawn) draw(frame)

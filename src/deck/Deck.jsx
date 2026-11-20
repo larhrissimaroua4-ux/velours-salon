@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Split from '@/components/Split'
 import { useI18n } from '@/i18n/I18n'
 import { gsap, reducedMotion } from '@/lib/gsap'
@@ -44,9 +44,11 @@ function leaveTimeline(el, dir) {
 }
 
 const clamp01 = (v) => Math.min(1, Math.max(0, v))
-// Molette : une vidéo entière ≈ 1 800 px de défilement ; doigt : ≈ 1,4 écran
-const WHEEL_SPEED = 1 / 1800
-const TOUCH_SPEED = 1 / 1.4
+// Molette : une vidéo entière ≈ 3 400 px de défilement ; doigt : ≈ 2,6 écrans
+const WHEEL_SPEED = 1 / 3400
+const TOUCH_SPEED = 1 / 2.6
+// Silence (ms) qui marque la fin d'un geste de molette / pavé tactile
+const GESTURE_GAP = 280
 
 const canScroll = (el, dir) => (dir > 0 ? el.scrollTop + el.clientHeight < el.scrollHeight - 2 : el.scrollTop > 2)
 
@@ -64,7 +66,6 @@ export default function Deck({ slides }) {
   const introRef = useRef(null)
   const menuRef = useRef(null)
   const busyRef = useRef(false)
-  const unlockRef = useRef(0)
   // fin d'une slide « au scroll » : il faut un nouveau geste pour continuer
   const freshRef = useRef(false)
   const enterRef = useRef(new Map())
@@ -86,6 +87,8 @@ export default function Deck({ slides }) {
       const next = Math.min(count - 1, Math.max(0, target))
       if (busyRef.current || next === from) return
       busyRef.current = true
+      // l'élan du geste en cours ne doit jamais enchaîner une 2e slide
+      freshRef.current = true
       const dir = next > from ? 1 : -1
       const fromEl = slideRefs.current[from]
       const toEl = slideRefs.current[next]
@@ -103,8 +106,8 @@ export default function Deck({ slides }) {
         gsap.set(gsap.utils.selector(fromEl)('[data-char],[data-fade],[data-zoom]'), { clearProps: 'all' })
         gsap.set(toEl, { clearProps: 'clipPath,zIndex' })
         gsap.set(curtain, { visibility: 'hidden' })
+        curtain.parentElement.style.background = ''
         busyRef.current = false
-        unlockRef.current = performance.now()
       }
 
       if (reducedMotion()) {
@@ -119,6 +122,8 @@ export default function Deck({ slides }) {
       const [start, end] = SHAPES[ORDER[next % ORDER.length]](dir)
       curtain.dataset.tone = slides[next].theme === 'dark' ? 'blush' : 'wine'
       gsap.set(fromEl, { zIndex: 1 })
+      // fond = couleur de la slide qui part (pas de bord clair quand elle rétrécit)
+      curtain.parentElement.style.background = getComputedStyle(fromEl).backgroundColor
       gsap.set(curtain, { visibility: 'visible', zIndex: 2, clipPath: start })
       gsap.set(toEl, { visibility: 'visible', zIndex: 3, clipPath: start })
       gsap
@@ -141,13 +146,20 @@ export default function Deck({ slides }) {
       scrub.target = clamp01(scrub.target + delta)
       // fin atteinte : l'inertie du geste ne doit pas enchaîner sur la slide suivante
       if (scrub.target === 0 || scrub.target === 1) {
-        unlockRef.current = performance.now()
         freshRef.current = true
       }
       return true
     },
     [scrubFor],
   )
+
+  // La visibilité des slides est gérée uniquement par les animations : si React
+  // la changeait au rendu, la slide qui part disparaîtrait avant le rideau.
+  useLayoutEffect(() => {
+    slideRefs.current.forEach((el, i) => {
+      el.style.visibility = i === indexRef.current ? 'visible' : 'hidden'
+    })
+  }, [])
 
   // ---- Intro : le nom se dessine sur le bordeaux, puis le rideau se lève en arche
   useEffect(() => {
@@ -187,15 +199,12 @@ export default function Deck({ slides }) {
       const now = performance.now()
       const quiet = now - lastWheel
       lastWheel = now
-      if (freshRef.current) {
-        if (quiet < 350) return
-        freshRef.current = false
-      }
-      // l'inertie des pavés tactiles ne doit pas enchaîner plusieurs slides
-      if (busyRef.current || (now - unlockRef.current < 900 && quiet < 160)) {
+      // un nouveau geste est exigé après une transition ou la fin de l'animation au scroll
+      if (busyRef.current || (freshRef.current && quiet < GESTURE_GAP)) {
         acc = 0
         return
       }
+      freshRef.current = false
       if (quiet > 300) acc = 0
       const pixels = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1)
       if (scrubBy(pixels * WHEEL_SPEED)) {
@@ -328,7 +337,6 @@ export default function Deck({ slides }) {
             }}
             className={styles.slide}
             data-theme={slide.theme}
-            style={{ visibility: i === index ? 'visible' : 'hidden' }}
             aria-label={slide.label}
             aria-hidden={i !== index}
             inert={i !== index}

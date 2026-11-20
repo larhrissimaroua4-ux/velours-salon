@@ -57,7 +57,7 @@ export const services = [
   {
     id: 'ongles',
     art: 'polish',
-    image: null,
+    image: '/images/services/ongles',
     label: { fr: 'Ongles', en: 'Nails' },
     title: { fr: ['Le détail', 'qui signe.'], en: ['The detail', 'that signs.'] },
     text: {
@@ -75,7 +75,7 @@ export const services = [
   {
     id: 'maquillage',
     art: 'lipstick',
-    image: null,
+    image: '/images/services/maquillage',
     label: { fr: 'Maquillage', en: 'Make-up' },
     title: { fr: ['Votre jour,', 'sublimé.'], en: ['Your day,', 'elevated.'] },
     text: {

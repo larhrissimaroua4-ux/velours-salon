@@ -57,7 +57,8 @@ const canScroll = (el, dir) => (dir > 0 ? el.scrollTop + el.clientHeight < el.sc
  * Une slide dont le contenu dépasse défile d'abord en interne ([data-scroll]).
  *
  * @param {{ slides: { id: string, label: string, theme?: 'dark',
- *   scrub?: boolean | number (longueur relative de l'animation au scroll), content: (ctx: { go, active, scrub }) => React.ReactNode }[] }} props
+ *   scrub?: boolean | number (longueur relative de l'animation au scroll),
+ *   scrubPause?: number (étape où le contenu qui dépasse défile avant la suite), content: (ctx: { go, active, scrub }) => React.ReactNode }[] }} props
  */
 export default function Deck({ slides }) {
   const { t, toggle } = useI18n()
@@ -142,12 +143,24 @@ export default function Deck({ slides }) {
 
   /** Fait avancer la slide « au scroll » ; renvoie true si le geste est consommé. */
   const scrubBy = useCallback(
-    (delta) => {
+    (delta, target) => {
       const scrub = scrubFor(indexRef.current)
       if (!scrub || busyRef.current || reducedMotion() || delta === 0) return false
       if ((delta > 0 && scrub.target >= 1) || (delta < 0 && scrub.target <= 0)) return false
-      const length = typeof slides[indexRef.current].scrub === 'number' ? slides[indexRef.current].scrub : 1
-      scrub.target = clamp01(scrub.target + delta / length)
+      const slide = slides[indexRef.current]
+      const length = typeof slide.scrub === 'number' ? slide.scrub : 1
+      let next = clamp01(scrub.target + delta / length)
+      // halte : le contenu qui dépasse (téléphone) défile entre les deux étapes
+      const pause = slide.scrubPause
+      const scroller = target?.closest?.('[data-scroll]') ?? slideRefs.current[indexRef.current]?.querySelector('[data-scroll]')
+      if (pause && scroller) {
+        const crossing = (delta > 0 && scrub.target < pause && next > pause && canScroll(scroller, 1)) || (delta < 0 && scrub.target > pause && next < pause && canScroll(scroller, -1))
+        if (crossing) {
+          next = pause
+          freshRef.current = true
+        }
+      }
+      scrub.target = next
       // fin atteinte : l'inertie du geste ne doit pas enchaîner sur la slide suivante
       if (scrub.target === 0 || scrub.target === 1) {
         freshRef.current = true
@@ -200,9 +213,12 @@ export default function Deck({ slides }) {
       const scroller = target?.closest?.('[data-scroll]')
       if (!scroller || !canScroll(scroller, dir)) return false
       const scrub = scrubFor(indexRef.current)
-      return !(dir < 0 && scrub && scrub.target > 0)
+      if (!scrub) return true
+      // avant la halte en descendant (ou après elle en remontant) : l'animation d'abord
+      const pause = slides[indexRef.current].scrubPause ?? 0
+      return dir > 0 ? scrub.target >= pause : scrub.target <= pause
     },
-    [scrubFor],
+    [scrubFor, slides],
   )
 
   // ---- Molette, glissé, clavier
@@ -234,7 +250,7 @@ export default function Deck({ slides }) {
       }
       if (quiet > 300) acc = 0
       const pixels = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1)
-      if (scrubBy(pixels * WHEEL_SPEED)) {
+      if (scrubBy(pixels * WHEEL_SPEED, event.target)) {
         acc = 0
         return
       }
@@ -252,6 +268,12 @@ export default function Deck({ slides }) {
     }
     const onTouchMove = (event) => {
       if (!touch || menuRef.current?.dataset.open) return
+      // pendant une transition, aucune slide ne défile en dessous
+      if (busyRef.current) {
+        if (event.cancelable) event.preventDefault()
+        touch.used = true
+        return
+      }
       const y = event.touches[0].clientY
       const delta = touch.lastY - y
       touch.lastY = y
@@ -259,7 +281,7 @@ export default function Deck({ slides }) {
         touch.native = true
         return
       }
-      if (scrubBy((delta / window.innerHeight) * TOUCH_SPEED)) {
+      if (scrubBy((delta / window.innerHeight) * TOUCH_SPEED, event.target)) {
         touch.used = true
         if (event.cancelable) event.preventDefault() // pas de défilement natif en même temps
       }

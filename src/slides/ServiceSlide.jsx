@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
+import { ACTS } from '@/acts/Acts'
 import LineArt from '@/art/LineArt'
 import Split from '@/components/Split'
 import { useI18n } from '@/i18n/I18n'
-import { gsap } from '@/lib/gsap'
+import { gsap, reducedMotion } from '@/lib/gsap'
 import styles from './Slides.module.css'
 
 const clamp01 = (v) => Math.min(1, Math.max(0, v))
@@ -14,8 +15,11 @@ const lerp = (a, b, k) => a + (b - a) * k
 
 /**
  * Slide d'une prestation, animée AU SCROLL (le deck fait avancer scrub.target) :
- *   0 → 0,6  les prestations s'allument une à une, la photo se resserre,
- *            le grand chiffre monte, la pastille tourne ;
+ *   0 → 0,55 dans l'arche, le geste du métier (goutte, ciseaux, vernis, rouge
+ *            à lèvres : src/acts) sur la photo voilée ; en parallèle les
+ *            prestations s'allument une à une, le chiffre monte, la pastille tourne ;
+ *   0,55 → 0,6 le voile se lève sur la photo ; halte à 0,62 : sur téléphone,
+ *            le contenu défile ici (cf. scrubPause dans App) ;
  *   0,6 → 1  l'arche s'agrandit jusqu'au plein écran, le nom du soin apparaît.
  * Le calque plein écran part exactement du cadre de l'arche (même photo, même
  * recadrage) : le passage de l'un à l'autre est invisible.
@@ -29,6 +33,13 @@ export default function ServiceSlide({ service, index, onBook, active, scrub }) 
   const expandRef = useRef(null)
   const activeRef = useRef(active)
   activeRef.current = active
+  const veilRef = useRef(null)
+  const hintRef = useRef(null)
+  const actRef = useRef(null)
+  const act = ACTS[service.art]
+  const onActReady = useCallback((update) => {
+    actRef.current = update
+  }, [])
 
   useEffect(() => {
     const root = rootRef.current
@@ -36,6 +47,7 @@ export default function ServiceSlide({ service, index, onBook, active, scrub }) 
     const expand = expandRef.current
     const items = [...root.querySelectorAll('[data-item]')]
     if (!scrub) return undefined
+    const still = reducedMotion()
     let current = scrub.target
     let shown = -1
     let flagged = false
@@ -61,7 +73,13 @@ export default function ServiceSlide({ service, index, onBook, active, scrub }) 
       if (Math.abs(current - shown) < 0.0002) return
       shown = current
 
-      const e = smooth(0.6, 1, current)
+      // geste du métier dans l'arche, puis le voile se lève
+      const t = still ? 1 : clamp01(current / 0.55)
+      actRef.current?.(t, veilRef.current)
+      if (veilRef.current) veilRef.current.style.opacity = still ? 0 : 1 - smooth(0.55, 0.62, current)
+      if (hintRef.current) hintRef.current.style.opacity = still ? 0 : 1 - smooth(0.005, 0.05, current)
+
+      const e = still ? 0 : smooth(0.6, 1, current)
       flag(activeRef.current && e > 0.45)
       root.style.setProperty('--p', current.toFixed(4))
       root.style.setProperty('--e', e.toFixed(4))
@@ -153,6 +171,17 @@ export default function ServiceSlide({ service, index, onBook, active, scrub }) 
           <div data-zoom className={styles.archInner}>
             {photo ?? <LineArt name={service.art} className={styles.art} />}
           </div>
+          {photo && act ? (
+            <>
+              <div ref={veilRef} className={styles.veil} data-tone={act.tone} />
+              <div className={styles.act}>
+                <act.Component onReady={onActReady} word={service.word ? localize(service.word) : undefined} />
+              </div>
+              <p ref={hintRef} className={styles.actHint} data-tone={act.tone}>
+                {t('hero.hint')}
+              </p>
+            </>
+          ) : null}
         </div>
         <div data-badge className={styles.badge}>
           <span>{copy.from}</span>

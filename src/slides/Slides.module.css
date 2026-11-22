@@ -177,6 +177,63 @@
   transform: scaleX(1);
 }
 
+.veil {
+  position: absolute;
+  inset: 0;
+  background: rgb(26 7 12 / 0.84);
+  pointer-events: none;
+}
+
+.veil[data-tone='milk'] {
+  background: rgb(247 243 238 / 0.9);
+}
+
+.act {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.act svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.act [data-sway] {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+  animation: sway 4.5s ease-in-out infinite alternate;
+}
+
+@keyframes sway {
+  from {
+    rotate: -1.5deg;
+  }
+  to {
+    rotate: 1.5deg;
+  }
+}
+
+.actHint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 1.1rem;
+  margin: 0;
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  pointer-events: none;
+}
+
+.actHint[data-tone='milk'] {
+  color: var(--gold-deep);
+}
+
 .expand {
   position: absolute;
   z-index: 5;

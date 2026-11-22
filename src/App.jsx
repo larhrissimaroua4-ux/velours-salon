@@ -11,7 +11,7 @@ export default function App() {
 
   const slides = useMemo(() => {
     const list = [{ id: 'accueil', label: t('nav.home'), theme: 'video', scrub: true, content: ({ active, scrub }) => <HeroSlide active={active} scrub={scrub} /> }]
-    services.forEach((service, i) => list.push({ id: service.id, label: localize(service.label), scrub: 0.6, content: ({ go, active, scrub }) => <ServiceSlide service={service} index={i} active={active} scrub={scrub} onBook={() => go(services.length + 1)} /> }))
+    services.forEach((service, i) => list.push({ id: service.id, label: localize(service.label), scrub: 0.6, scrubPause: 0.62, content: ({ go, active, scrub }) => <ServiceSlide service={service} index={i} active={active} scrub={scrub} onBook={() => go(services.length + 1)} /> }))
     list.push({ id: 'contact', label: t('nav.contact'), theme: 'dark', content: () => <ContactSlide /> })
     return list
   }, [t, localize])

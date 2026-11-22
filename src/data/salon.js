@@ -75,6 +75,7 @@ export const services = [
   {
     id: 'maquillage',
     art: 'lipstick',
+    word: { fr: 'Sublime', en: 'Gorgeous' },
     image: '/images/services/maquillage',
     label: { fr: 'Maquillage', en: 'Make-up' },
     title: { fr: ['Votre jour,', 'sublimé.'], en: ['Your day,', 'elevated.'] },

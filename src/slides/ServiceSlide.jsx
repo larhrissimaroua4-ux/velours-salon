@@ -170,8 +170,14 @@ export default function ServiceSlide({ service, index, onBook, active, scrub }) 
         <div ref={archRef} data-arch className={styles.arch}>
           <div data-zoom className={styles.archInner}>
             {photo ?? <LineArt name={service.art} className={styles.art} />}
+            {photo && act?.inPhoto ? <act.Component onReady={onActReady} className={styles.photo} /> : null}
           </div>
-          {photo && act ? (
+          {photo && act?.inPhoto ? (
+            <p ref={hintRef} className={styles.actHint}>
+              {t('hero.hint')}
+            </p>
+          ) : null}
+          {photo && act && !act.inPhoto ? (
             <>
               <div ref={veilRef} className={styles.veil} data-tone={act.tone} />
               <div className={styles.act}>

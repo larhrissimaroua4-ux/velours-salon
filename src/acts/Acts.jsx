@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import PhotoReveal from './PhotoReveal'
 
 /*
  * Animations « métier » jouées dans l'arche au scroll (une par prestation).
@@ -210,94 +211,6 @@ export function ScissorsAct({ onReady }) {
   )
 }
 
-/* ---------- Ongles : le pinceau vernit l'ongle ---------- */
-const NAIL = 'M60 215 C58 160 64 108 102 66 C140 108 146 160 144 215 C128 227 76 227 60 215 Z'
-const STROKES = [
-  { d: 'M102 222 L102 60', from: 0.05, to: 0.32, width: 46 },
-  { d: 'M70 222 C64 160 76 116 98 74', from: 0.34, to: 0.54, width: 44 },
-  { d: 'M134 222 C140 160 128 116 106 74', from: 0.56, to: 0.76, width: 44 },
-]
-const BRUSH = { w: 70, h: 90.4, tipX: 4.1, tipY: 90.1 }
-
-export function NailAct({ onReady }) {
-  const ref = useRef(null)
-  useEffect(() => {
-    const svg = ref.current
-    const strokes = [...svg.querySelectorAll('[data-stroke]')]
-    const brush = svg.querySelector('[data-brush]')
-    const sheen = svg.querySelector('[data-sheen]')
-    const shine = svg.querySelector('[data-shine]')
-    const lengths = strokes.map((el) => el.getTotalLength())
-    strokes.forEach((el, i) => set(el, { 'stroke-dasharray': `${lengths[i]} ${lengths[i]}`, 'stroke-dashoffset': lengths[i] }))
-    onReady((t, veil) => {
-      let tip = null
-      STROKES.forEach((s, i) => {
-        const k = clamp01((t - s.from) / (s.to - s.from))
-        set(strokes[i], { 'stroke-dashoffset': lengths[i] * (1 - k) })
-        if (t >= s.from - 0.02 && t <= s.to + 0.01) tip = strokes[i].getPointAtLength(lengths[i] * k)
-      })
-      // entre deux coups de pinceau, le pinceau remonte vers le départ suivant
-      if (!tip) {
-        const next = STROKES.find((s) => t < s.from)
-        const pt = next ? strokes[STROKES.indexOf(next)].getPointAtLength(0) : { x: 150, y: 20 }
-        tip = { x: pt.x, y: pt.y - (next ? 18 : 0) }
-      }
-      const away = smooth(0.76, 0.9, t)
-      const enter = smooth(0, 0.06, t)
-      const x = lerp(170, tip.x, enter) + 60 * away
-      const y = lerp(-40, tip.y, enter) - 90 * away
-      set(brush, { x: x - BRUSH.tipX, y: y - BRUSH.tipY, opacity: 1 - smooth(0.82, 0.92, t) })
-      const gloss = smooth(0.8, 1, t)
-      set(sheen, { transform: `translate(${lerp(-90, 110, gloss)} 0) rotate(-24 102 140)`, opacity: gloss > 0 && gloss < 1 ? 1 : 0 })
-      set(shine, { opacity: 0.4 * smooth(0.88, 1, t) })
-      if (veil) veil.style.webkitMaskImage = veil.style.maskImage = ''
-    })
-  }, [onReady])
-
-  return (
-    <svg ref={ref} viewBox="0 0 204 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      <GoldDefs id="nail" />
-      <defs>
-        <linearGradient id="nail-skin" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#c99a84" />
-          <stop offset="0.5" stopColor="#ecc8b4" />
-          <stop offset="1" stopColor="#c08f7a" />
-        </linearGradient>
-        {/* repère absolu : un dégradé « boîte » ne s'applique pas sur un tracé droit */}
-        <linearGradient id="nail-polish" gradientUnits="userSpaceOnUse" x1="52" y1="0" x2="152" y2="0">
-          <stop offset="0" stopColor="#3d0f19" />
-          <stop offset="0.42" stopColor="#8d2a3d" />
-          <stop offset="0.58" stopColor="#7a2134" />
-          <stop offset="1" stopColor="#3d0f19" />
-        </linearGradient>
-        <linearGradient id="nail-nude" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#f6dfd5" />
-          <stop offset="1" stopColor="#d9ada0" />
-        </linearGradient>
-        <linearGradient id="nail-sheen" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#fff" stopOpacity="0" />
-          <stop offset="0.5" stopColor="#fff" stopOpacity="0.6" />
-          <stop offset="1" stopColor="#fff" stopOpacity="0" />
-        </linearGradient>
-        <clipPath id="nail-clip">
-          <path d={NAIL} />
-        </clipPath>
-      </defs>
-      <path d="M44 330 V214 C44 176 62 150 102 150 C142 150 160 176 160 214 V330 Z" fill="url(#nail-skin)" />
-      <path d={NAIL} fill="url(#nail-nude)" />
-      <g clipPath="url(#nail-clip)">
-        {STROKES.map((s, i) => (
-          <path key={i} data-stroke d={s.d} fill="none" stroke="url(#nail-polish)" strokeWidth={s.width} strokeLinecap="round"  />
-        ))}
-        <rect data-sheen x="70" y="40" width="26" height="220" fill="url(#nail-sheen)" opacity="0" />
-        <path data-shine d="M86 200 C82 160 86 122 98 92" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" opacity="0" />
-      </g>
-      <path d="M62 214 C78 224 126 224 142 214" fill="none" stroke="#b88472" strokeWidth="1.2" />
-      <image data-brush href="/images/acts/polish-brush.webp" width={BRUSH.w} height={BRUSH.h} x="170" y="-40" />
-    </svg>
-  )
-}
-
 /* ---------- Maquillage : le rouge à lèvres écrit ---------- */
 const TIP = { x: 114, y: 96 }
 
@@ -368,9 +281,18 @@ export function LipstickAct({ onReady, word }) {
   )
 }
 
+/* ---------- Ongles, en photos réelles : le vrai pinceau vernit les ongles ---------- */
+// pinceau découpé dans la photo du vernis (240 × 310) : pointe en bas à gauche, bouchon en haut à droite
+const POLISH_BRUSH = { src: '/images/acts/polish-brush.webp', w: 240, h: 310, tipX: 14, tipY: 309, axis: Math.atan2(25 - 309, 192 - 14), tilt: -1.55, size: 7.4 }
+
+export function NailPhotoAct({ onReady, className }) {
+  return <PhotoReveal name="ongles" tool={POLISH_BRUSH} onReady={onReady} className={className} />
+}
+
+// inPhoto : l'animation remplace la photo dans l'arche (pas de voile)
 export const ACTS = {
   serum: { Component: DropAct, tone: 'night' },
   scissors: { Component: ScissorsAct, tone: 'milk' },
-  polish: { Component: NailAct, tone: 'night' },
+  polish: { Component: NailPhotoAct, inPhoto: true },
   lipstick: { Component: LipstickAct, tone: 'milk' },
 }

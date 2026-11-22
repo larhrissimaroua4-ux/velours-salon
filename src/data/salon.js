@@ -57,7 +57,8 @@ export const services = [
   {
     id: 'ongles',
     art: 'polish',
-    image: '/images/services/ongles',
+    // photo « après » de l'animation (vernis posé) : tools/build_reveal.py
+    image: '/images/acts/ongles-apres',
     label: { fr: 'Ongles', en: 'Nails' },
     title: { fr: ['Le détail', 'qui signe.'], en: ['The detail', 'that signs.'] },
     text: {

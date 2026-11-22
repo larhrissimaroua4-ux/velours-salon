@@ -554,79 +554,6 @@
   color: var(--wine);
 }
 
-/* ---- Tarifs */
-.prices {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: clamp(2rem, 5vh, 4rem);
-  min-height: 100%;
-  padding: 6.5rem calc(var(--gutter) + 3.5rem) 5.5rem var(--gutter-wide);
-}
-
-.pricesHead {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  grid-template-areas: 'eyebrow eyebrow' 'title note';
-  align-items: end;
-  gap: 0 4rem;
-}
-
-.pricesHead .eyebrow {
-  grid-area: eyebrow;
-}
-
-.pricesHead .title {
-  grid-area: title;
-  font-size: clamp(2.6rem, 5vw, 5rem);
-}
-
-.note {
-  grid-area: note;
-  max-width: 22rem;
-  margin: 0;
-  justify-self: end;
-  font-size: 0.86rem;
-  line-height: 1.6;
-  color: var(--ink-soft);
-}
-
-.columns {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(1.5rem, 3vw, 3rem);
-}
-
-.columnTitle {
-  margin: 0 0 1rem;
-  font-family: var(--serif);
-  font-size: 1.5rem;
-  font-weight: 400;
-  font-style: italic;
-  color: var(--rose);
-}
-
-.priceList {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.priceList li {
-  position: relative;
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  padding: 0.75rem 0;
-  font-size: 0.92rem;
-}
-
-.dots {
-  flex: 1 1 1rem;
-  min-width: 1rem;
-  border-bottom: 1px dotted var(--gold);
-}
-
 /* ---- Contact (bordeaux) */
 .contact {
   position: relative;
@@ -729,8 +656,7 @@
 
 /* ---- Écrans d'ordinateur peu hauts (MacBook, fenêtre réduite) : tout tient dans l'écran */
 @media (min-width: 761px) and (max-height: 880px) {
-  .layout,
-  .prices {
+  .layout {
     padding-top: 5.6rem;
     padding-bottom: 4.4rem;
   }
@@ -764,10 +690,6 @@
     margin-top: 1.3rem;
   }
 
-  .priceList li {
-    padding: 0.5rem 0;
-  }
-
   .contact {
     padding-top: 5.6rem;
     padding-bottom: 4.4rem;
@@ -796,11 +718,6 @@
 }
 
 /* ---- Écrans moyens */
-@media (max-width: 1100px) {
-  .columns {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
 
 /* ---- Téléphones : arche en haut, texte dessous ; la slide défile si besoin */
 @media (max-width: 760px), (orientation: portrait) and (max-width: 1000px) {
@@ -902,26 +819,6 @@
 
   .hint {
     margin-top: 1.4rem;
-  }
-
-  .prices {
-    justify-content: flex-start;
-    padding: 5.6rem var(--gutter) 5.5rem;
-  }
-
-  .pricesHead {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: 'eyebrow' 'title' 'note';
-    gap: 1rem;
-  }
-
-  .note {
-    justify-self: start;
-  }
-
-  .columns {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 2rem;
   }
 
   .heroShade {

@@ -1,5 +1,5 @@
 export default {
-  nav: { menu: 'Menu', close: 'Fermer', book: 'Réserver', switch: 'English', switchShort: 'EN', home: 'Accueil', prices: 'Tarifs', contact: 'Contact' },
+  nav: { menu: 'Menu', close: 'Fermer', book: 'Réserver', switch: 'English', switchShort: 'EN', home: 'Accueil', contact: 'Contact' },
   hero: {
     eyebrow: 'Salon de beauté',
     title: ['Prenez', 'le temps', 'd’être belle.'],
@@ -8,7 +8,6 @@ export default {
     ring: 'SALON DE BEAUTÉ · VELOURS · DEPUIS 2026 · ',
   },
   service: { from: 'dès', currency: 'DH', book: 'Réserver ce soin' },
-  prices: { eyebrow: 'Tarifs', title: ['La carte', 'des soins.'], note: 'Prix en dirhams. Forfaits mariée et soins à domicile sur devis.' },
   contact: {
     eyebrow: 'Rendez-vous',
     title: ['Votre moment', 'vous attend.'],

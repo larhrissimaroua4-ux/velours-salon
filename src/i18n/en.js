@@ -1,5 +1,5 @@
 export default {
-  nav: { menu: 'Menu', close: 'Close', book: 'Book', switch: 'Français', switchShort: 'FR', home: 'Home', prices: 'Prices', contact: 'Contact' },
+  nav: { menu: 'Menu', close: 'Close', book: 'Book', switch: 'Français', switchShort: 'FR', home: 'Home', contact: 'Contact' },
   hero: {
     eyebrow: 'Beauty salon',
     title: ['Take', 'the time', 'to glow.'],
@@ -8,7 +8,6 @@ export default {
     ring: 'BEAUTY SALON · VELOURS · SINCE 2026 · ',
   },
   service: { from: 'from', currency: 'DH', book: 'Book this treatment' },
-  prices: { eyebrow: 'Prices', title: ['Our', 'treatments.'], note: 'Prices in dirhams. Bridal packages and home visits on request.' },
   contact: {
     eyebrow: 'Appointments',
     title: ['Your moment', 'is waiting.'],

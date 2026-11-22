@@ -4,6 +4,7 @@ puis chaque zone reçoit une rampe 0 → 1 le long de son axe principal.
 
 usage : python3 tools/build_reveal.py <avant.jpg> <après.jpg> <nom> [sens] [ordre] [seuil]
   sens  : down | up | left | right   (sens du geste dans chaque zone, défaut down)
+          none : seulement les deux photos recadrées (révélation calculée dans le site)
   ordre : x | -x | y | -y            (ordre des zones, défaut x)
   seuil : écart de couleur Lab minimal (défaut 30)
 
@@ -35,6 +36,14 @@ def crop(img):
     return img[y:y + nh]
 
 
+def save_photos(name, a, b):
+    OUT.mkdir(parents=True, exist_ok=True)
+    for label, img in (('avant', a), ('apres', b)):
+        pil = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+        pil.save(OUT / f'{name}-{label}.webp', quality=82, method=6)
+        pil.resize((560, round(560 / RATIO)), Image.LANCZOS).save(OUT / f'{name}-{label}-sm.webp', quality=82, method=6)
+
+
 def main():
     before, after, name = sys.argv[1], sys.argv[2], sys.argv[3]
     sens = sys.argv[4] if len(sys.argv) > 4 else 'down'
@@ -45,6 +54,10 @@ def main():
     if a.shape != b.shape:
         b = cv2.resize(b, (a.shape[1], a.shape[0]), interpolation=cv2.INTER_AREA)
     h, w = a.shape[:2]
+    if sens == 'none':
+        save_photos(name, a, b)
+        print(name, w, h, 'photos seules')
+        return
 
     la = cv2.cvtColor(a, cv2.COLOR_BGR2LAB).astype(np.float32)
     lb = cv2.cvtColor(b, cv2.COLOR_BGR2LAB).astype(np.float32)
@@ -85,10 +98,7 @@ def main():
     rgb = np.dstack([(ramp * 255).round(), zone_id, (alpha * 255).round()]).astype(np.uint8)
     # la rampe est lue en JS : demi-résolution suffit, sans interpolation entre zones
     Image.fromarray(rgb).resize((w // 2, h // 2), Image.NEAREST).save(OUT / f'{name}-ramp.png', optimize=True)
-    for label, img in (('avant', a), ('apres', b)):
-        pil = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-        pil.save(OUT / f'{name}-{label}.webp', quality=82, method=6)
-        pil.resize((560, round(560 / RATIO)), Image.LANCZOS).save(OUT / f'{name}-{label}-sm.webp', quality=82, method=6)
+    save_photos(name, a, b)
     (OUT / f'{name}.json').write_text(json.dumps({'width': w, 'height': h, 'zones': meta}))
     print(name, w, h, len(meta), 'zones')
 

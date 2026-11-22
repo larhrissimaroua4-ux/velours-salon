@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import DropPhotoAct from './DropPhotoAct'
 import PhotoReveal from './PhotoReveal'
 
 /*
@@ -32,78 +33,6 @@ function GoldDefs({ id }) {
         <stop offset="1" stopColor="#4a1420" />
       </linearGradient>
     </defs>
-  )
-}
-
-/* ---------- Soins du visage : la goutte de sérum ---------- */
-export function DropAct({ onReady }) {
-  const ref = useRef(null)
-  useEffect(() => {
-    const svg = ref.current
-    const q = (s) => svg.querySelector(s)
-    const pipette = q('[data-pipette]')
-    const drop = q('[data-drop]')
-    const ripples = [...svg.querySelectorAll('[data-ripple]')]
-    const beads = [...svg.querySelectorAll('[data-bead]')]
-    onReady((t, veil) => {
-      set(pipette, { transform: `translate(0 ${lerp(-70, 0, smooth(0, 0.12, t))})` })
-      const grow = smooth(0.08, 0.36, t)
-      const fall = clamp01((t - 0.38) / 0.24)
-      let x = 102
-      let y = 50 + 6 * grow
-      let s = 0.25 + 0.75 * grow
-      let sy = 1 + 0.25 * grow
-      if (t >= 0.38) {
-        y = 56 + (206 - 56) * fall * fall
-        s = 1
-        sy = 1.3 - 0.15 * fall
-      }
-      set(drop, { transform: `translate(${x} ${y}) scale(${s} ${s * sy})`, opacity: t < 0.62 ? smooth(0.08, 0.13, t) : 0 })
-      const splash = clamp01((t - 0.62) / 0.38)
-      ripples.forEach((el, i) => {
-        const k = clamp01(splash * 1.25 - i * 0.18)
-        const rx = 6 + 120 * k
-        set(el, { rx, ry: rx * 0.26, opacity: k > 0 ? (1 - k) * 0.9 : 0 })
-      })
-      beads.forEach((el, i) => {
-        const dir = (i - 2) * 0.55
-        set(el, { cx: 102 + dir * 46 * splash, cy: 206 - 46 * splash + 60 * splash * splash, opacity: splash > 0 ? 1 - splash : 0 })
-      })
-      // la lumière se répand depuis le point d'impact
-      if (veil) {
-        const r = splash * veil.clientWidth * 1.7
-        veil.style.webkitMaskImage = veil.style.maskImage = splash > 0 ? `radial-gradient(circle at 50% 69%, transparent ${r}px, #000 ${r + 40}px)` : ''
-      }
-    })
-  }, [onReady])
-
-  return (
-    <svg ref={ref} viewBox="0 0 204 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      <GoldDefs id="drop" />
-      <defs>
-        <radialGradient id="drop-serum" cx="0.4" cy="0.6" r="0.7">
-          <stop offset="0" stopColor="#ffeab8" />
-          <stop offset="0.55" stopColor="#d9a44c" />
-          <stop offset="1" stopColor="#8a5a1c" />
-        </radialGradient>
-      </defs>
-      <g data-pipette>
-        <rect x="88" y="-40" width="28" height="22" rx="3" fill="url(#drop-gold)" />
-        <path d="M93 -18 H111 V30 L104 50 H100 L93 30 Z" fill="rgba(255,240,220,0.12)" stroke="rgba(255,236,210,0.6)" strokeWidth="1" />
-        <path d="M96 -10 V28" stroke="rgba(255,255,255,0.45)" strokeWidth="1.4" strokeLinecap="round" />
-        <path d="M95 6 H109 V30 L104 48 H100 L95 30 Z" fill="#c98a2e" opacity="0.75" />
-      </g>
-      {[0, 1, 2].map((i) => (
-        <ellipse key={i} data-ripple cx="102" cy="206" rx="0" ry="0" fill="none" stroke="#e9cc8e" strokeWidth={1.6 - i * 0.4} opacity="0" />
-      ))}
-      {[0, 1, 2, 3, 4].map((i) => (
-        <circle key={i} data-bead cx="102" cy="206" r={i === 2 ? 3.2 : 2.2} fill="url(#drop-serum)" opacity="0" />
-      ))}
-      <g data-drop>
-        <path d="M0 -15 C5 -7 9 -1 9 5 A9 9 0 0 1 -9 5 C-9 -1 -5 -7 0 -15 Z" fill="url(#drop-serum)" />
-        <ellipse cx="-3.2" cy="3" rx="2" ry="3.4" fill="#fff" opacity="0.75" />
-      </g>
-    </svg>
   )
 }
 
@@ -291,7 +220,7 @@ export function NailPhotoAct({ onReady, className }) {
 
 // inPhoto : l'animation remplace la photo dans l'arche (pas de voile)
 export const ACTS = {
-  serum: { Component: DropAct, tone: 'night' },
+  serum: { Component: DropPhotoAct, inPhoto: true },
   scissors: { Component: ScissorsAct, tone: 'milk' },
   polish: { Component: NailPhotoAct, inPhoto: true },
   lipstick: { Component: LipstickAct, tone: 'milk' },

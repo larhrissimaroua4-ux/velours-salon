@@ -21,7 +21,8 @@ export const services = [
   {
     id: 'visage',
     art: 'serum',
-    image: '/images/services/visage',
+    // photo « après » de l'animation (peau lumineuse)
+    image: '/images/acts/visage-apres',
     label: { fr: 'Soins du visage', en: 'Facials' },
     title: { fr: ['Une peau', 'de velours.'], en: ['Skin like', 'velvet.'] },
     text: {

@@ -31,6 +31,10 @@
   --blush-soft: #f0e4df;
   --blush-line: #d9bdb5;
   --ink-soft: #7a5a60;
+  /* or champagne : le lien entre le lait et le bordeaux (étuis, lumières des photos) */
+  --gold: #c6a066;
+  --gold-deep: #9a7438;
+  --gold-light: #e2c58f;
   --line: rgb(110 31 46 / 0.16);
   --serif: 'Fraunces', 'Times New Roman', serif;
   --sans: 'Inter', system-ui, -apple-system, sans-serif;

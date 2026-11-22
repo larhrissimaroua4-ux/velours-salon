@@ -57,12 +57,13 @@ const canScroll = (el, dir) => (dir > 0 ? el.scrollTop + el.clientHeight < el.sc
  * Une slide dont le contenu dépasse défile d'abord en interne ([data-scroll]).
  *
  * @param {{ slides: { id: string, label: string, theme?: 'dark',
- *   scrub?: boolean, content: (ctx: { go, active, scrub }) => React.ReactNode }[] }} props
+ *   scrub?: boolean | number (longueur relative de l'animation au scroll), content: (ctx: { go, active, scrub }) => React.ReactNode }[] }} props
  */
 export default function Deck({ slides }) {
   const { t, toggle } = useI18n()
   const slideRefs = useRef([])
   const curtainRef = useRef(null)
+  const goldRef = useRef(null)
   const introRef = useRef(null)
   const menuRef = useRef(null)
   const busyRef = useRef(false)
@@ -105,7 +106,7 @@ export default function Deck({ slides }) {
         gsap.set(fromEl, { visibility: 'hidden', clearProps: 'transform,clipPath,zIndex' })
         gsap.set(gsap.utils.selector(fromEl)('[data-char],[data-fade],[data-zoom]'), { clearProps: 'all' })
         gsap.set(toEl, { clearProps: 'clipPath,zIndex' })
-        gsap.set(curtain, { visibility: 'hidden' })
+        gsap.set([curtain, goldRef.current], { visibility: 'hidden' })
         curtain.parentElement.style.background = ''
         busyRef.current = false
       }
@@ -124,14 +125,16 @@ export default function Deck({ slides }) {
       gsap.set(fromEl, { zIndex: 1 })
       // fond = couleur de la slide qui part (pas de bord clair quand elle rétrécit)
       curtain.parentElement.style.background = getComputedStyle(fromEl).backgroundColor
-      gsap.set(curtain, { visibility: 'visible', zIndex: 2, clipPath: start })
-      gsap.set(toEl, { visibility: 'visible', zIndex: 3, clipPath: start })
+      gsap.set(goldRef.current, { visibility: 'visible', zIndex: 2, clipPath: start })
+      gsap.set(curtain, { visibility: 'visible', zIndex: 3, clipPath: start })
+      gsap.set(toEl, { visibility: 'visible', zIndex: 4, clipPath: start })
       gsap
         .timeline({ onComplete: finish })
         .add(leaveTimeline(fromEl, dir), 0)
         .to(fromEl, { scale: 0.9, yPercent: -5 * dir, duration: 1.4, ease: 'expo.inOut' }, 0)
-        .fromTo(curtain, { clipPath: start }, { clipPath: end, duration: 1.15, ease: 'expo.inOut' }, 0.08)
-        .fromTo(toEl, { clipPath: start }, { clipPath: end, duration: 1.15, ease: 'expo.inOut' }, 0.3)
+        .fromTo(goldRef.current, { clipPath: start }, { clipPath: end, duration: 1.15, ease: 'expo.inOut' }, 0.02)
+        .fromTo(curtain, { clipPath: start }, { clipPath: end, duration: 1.15, ease: 'expo.inOut' }, 0.12)
+        .fromTo(toEl, { clipPath: start }, { clipPath: end, duration: 1.15, ease: 'expo.inOut' }, 0.32)
         .call(() => enter.play(), null, 0.62)
     },
     [count, slides, scrubFor],
@@ -143,14 +146,15 @@ export default function Deck({ slides }) {
       const scrub = scrubFor(indexRef.current)
       if (!scrub || busyRef.current || reducedMotion() || delta === 0) return false
       if ((delta > 0 && scrub.target >= 1) || (delta < 0 && scrub.target <= 0)) return false
-      scrub.target = clamp01(scrub.target + delta)
+      const length = typeof slides[indexRef.current].scrub === 'number' ? slides[indexRef.current].scrub : 1
+      scrub.target = clamp01(scrub.target + delta / length)
       // fin atteinte : l'inertie du geste ne doit pas enchaîner sur la slide suivante
       if (scrub.target === 0 || scrub.target === 1) {
         freshRef.current = true
       }
       return true
     },
-    [scrubFor],
+    [scrubFor, slides],
   )
 
   // La visibilité des slides est gérée uniquement par les animations : si React
@@ -187,6 +191,20 @@ export default function Deck({ slides }) {
     }
   }, [])
 
+  /**
+   * Le contenu d'une slide (s'il dépasse) défile-t-il nativement ? En descendant :
+   * le contenu d'abord, puis l'animation au scroll ; en remontant : l'inverse.
+   */
+  const nativeFirst = useCallback(
+    (target, dir) => {
+      const scroller = target?.closest?.('[data-scroll]')
+      if (!scroller || !canScroll(scroller, dir)) return false
+      const scrub = scrubFor(indexRef.current)
+      return !(dir < 0 && scrub && scrub.target > 0)
+    },
+    [scrubFor],
+  )
+
   // ---- Molette, glissé, clavier
   useEffect(() => {
     let lastWheel = 0
@@ -194,8 +212,7 @@ export default function Deck({ slides }) {
     let recent = [] // dernières amplitudes : un geste neuf « remonte », l'élan décroît
     const onWheel = (event) => {
       if (menuRef.current?.dataset.open) return
-      const scroller = event.target.closest?.('[data-scroll]')
-      if (scroller && canScroll(scroller, Math.sign(event.deltaY))) return
+      if (nativeFirst(event.target, Math.sign(event.deltaY))) return
       event.preventDefault()
       const now = performance.now()
       const quiet = now - lastWheel
@@ -236,12 +253,20 @@ export default function Deck({ slides }) {
     const onTouchMove = (event) => {
       if (!touch || menuRef.current?.dataset.open) return
       const y = event.touches[0].clientY
-      if (scrubBy(((touch.lastY - y) / window.innerHeight) * TOUCH_SPEED)) touch.used = true
+      const delta = touch.lastY - y
       touch.lastY = y
+      if (nativeFirst(event.target, Math.sign(delta))) {
+        touch.native = true
+        return
+      }
+      if (scrubBy((delta / window.innerHeight) * TOUCH_SPEED)) {
+        touch.used = true
+        if (event.cancelable) event.preventDefault() // pas de défilement natif en même temps
+      }
     }
     const onTouchEnd = (event) => {
       if (!touch || menuRef.current?.dataset.open) return
-      if (touch.used) {
+      if (touch.used || touch.native) {
         touch = null
         return
       }
@@ -275,7 +300,7 @@ export default function Deck({ slides }) {
 
     window.addEventListener('wheel', onWheel, { passive: false })
     window.addEventListener('touchstart', onTouchStart, { passive: true })
-    window.addEventListener('touchmove', onTouchMove, { passive: true })
+    window.addEventListener('touchmove', onTouchMove, { passive: false })
     window.addEventListener('touchend', onTouchEnd, { passive: true })
     window.addEventListener('keydown', onKey)
     window.addEventListener('hashchange', onHash)
@@ -287,7 +312,7 @@ export default function Deck({ slides }) {
       window.removeEventListener('keydown', onKey)
       window.removeEventListener('hashchange', onHash)
     }
-  }, [go, count, slides, scrubBy])
+  }, [go, count, slides, scrubBy, nativeFirst])
 
   // ---- Menu plein écran
   useEffect(() => {
@@ -318,7 +343,7 @@ export default function Deck({ slides }) {
   }
 
   return (
-    <div className={styles.deck} data-dark={dark || undefined} data-video={theme === 'video' || undefined}>
+    <div data-deck className={styles.deck} data-dark={dark || undefined} data-video={theme === 'video' || undefined}>
       <header className={styles.header}>
         <button type="button" className={styles.logo} onClick={() => go(0)}>
           VELOURS
@@ -356,6 +381,7 @@ export default function Deck({ slides }) {
             </div>
           </section>
         ))}
+        <div ref={goldRef} className={styles.curtainGold} aria-hidden="true" />
         <div ref={curtainRef} className={styles.curtain} aria-hidden="true" />
       </main>
 

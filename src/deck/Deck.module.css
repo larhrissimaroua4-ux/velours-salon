@@ -7,7 +7,7 @@
   color: var(--fg);
 }
 
-.deck[data-dark] {
+:is(.deck[data-dark], .deck[data-photo]) {
   --fg: var(--milk);
 }
 
@@ -55,6 +55,14 @@
 
 .curtain[data-tone='blush'] {
   background: var(--blush);
+}
+
+/* filet d'or qui précède le rideau */
+.curtainGold {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold) 55%, var(--gold-deep));
 }
 
 /* ---- En-tête */
@@ -122,7 +130,7 @@
   color: var(--milk);
 }
 
-.deck[data-dark] .book {
+:is(.deck[data-dark], .deck[data-photo]) .book {
   color: var(--wine);
 }
 
@@ -132,8 +140,8 @@
   color: var(--milk);
 }
 
-.deck[data-dark] .lang:hover,
-.deck[data-dark] .burger:hover {
+:is(.deck[data-dark], .deck[data-photo]) .lang:hover,
+:is(.deck[data-dark], .deck[data-photo]) .burger:hover {
   color: var(--wine);
 }
 
@@ -219,6 +227,7 @@
 .dot:hover::after {
   width: 2rem;
   opacity: 1;
+  background: var(--gold);
 }
 
 .dotLabel {
@@ -256,11 +265,12 @@
     transition: opacity 0.6s;
   }
 
-  .deck[data-video] .bottomFade {
+  .deck[data-video] .bottomFade,
+  .deck[data-photo] .bottomFade {
     opacity: 0;
   }
 
-  .deck[data-dark] .bottomFade {
+  :is(.deck[data-dark], .deck[data-photo]) .bottomFade {
     background: linear-gradient(to top, var(--wine) 55%, transparent);
   }
 }
@@ -308,7 +318,7 @@
 .counterBar span {
   position: absolute;
   inset: 0;
-  background: currentColor;
+  background: var(--gold);
   transform-origin: left;
   transition: transform 1.2s var(--ease-out) 0.4s;
 }
@@ -339,7 +349,7 @@
   color: var(--milk);
 }
 
-.deck[data-dark] .arrows button:hover:not(:disabled) {
+:is(.deck[data-dark], .deck[data-photo]) .arrows button:hover:not(:disabled) {
   color: var(--wine);
 }
 
@@ -394,11 +404,12 @@
 .menuLink:hover,
 .menuLink[data-active] {
   padding-left: 1rem;
-  color: var(--blush);
+  color: var(--gold-light);
   font-style: italic;
 }
 
 .menuIndex {
+  color: var(--gold-light);
   font-family: var(--sans);
   font-size: 0.72rem;
   font-style: normal;
@@ -430,7 +441,7 @@
 .introLine {
   width: min(16rem, 50vw);
   height: 1px;
-  background: var(--blush);
+  background: var(--gold);
   transform-origin: left;
 }
 

@@ -30,7 +30,7 @@ export default function BookingSlide({ preset }) {
   }, [preset])
 
   const service = services.find((s) => s.id === values.service)
-  const item = service?.items[Number(values.item)]
+  const item = values.item === '' ? undefined : service?.items[Number(values.item)]
   const slots = useMemo(() => timeSlots(values.date), [values.date])
 
   const set = (field) => (event) => {
@@ -95,18 +95,7 @@ export default function BookingSlide({ preset }) {
       </span>
 
       <div className={styles.copy}>
-        <p data-fade className={slides.eyebrow}>
-          <span data-line className={slides.rule} />
-          {copy.eyebrow}
-        </p>
-        <h2 className={`${slides.title} ${styles.title}`}>
-          {copy.title.map((line, i) => (
-            <span key={i} className={i === 1 ? `${slides.titleLine} ${styles.italic}` : slides.titleLine}>
-              <Split text={line} />
-            </span>
-          ))}
-        </h2>
-        <p data-fade className={`${slides.lead} ${styles.lead}`}>
+        <p data-fade className={styles.lead}>
           {copy.lead}
         </p>
 

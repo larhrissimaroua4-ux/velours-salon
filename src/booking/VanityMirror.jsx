@@ -1,15 +1,42 @@
 import { useEffect, useRef } from 'react'
-import { services } from '@/data/salon'
 import { useI18n } from '@/i18n/I18n'
 import { gsap, reducedMotion } from '@/lib/gsap'
+import Textures from './Textures'
 import styles from './VanityMirror.module.css'
 
-const BULBS = 12
+const BULBS = 14
+const RATIO = 1.38 // hauteur / largeur de l'arche
+const OUT = 0.075 // écart des ampoules au bord de la glace (en largeurs)
+
+// ampoules réparties le long de l'arche (côté gauche ↑, cintre, côté droit ↓)
+const BULB_POS = (() => {
+  const side = RATIO - 0.5
+  const arc = Math.PI * 0.5
+  const total = side * 2 + arc
+  const margin = 0.16
+  return Array.from({ length: BULBS }, (_, i) => {
+    const s = margin + (i / (BULBS - 1)) * (total - margin * 2)
+    let x
+    let y
+    let nx
+    let ny
+    if (s < side) {
+      ;[x, y, nx, ny] = [0, RATIO - s, -1, 0]
+    } else if (s < side + arc) {
+      const a = Math.PI + (s - side) / 0.5
+      ;[nx, ny] = [Math.cos(a), Math.sin(a)]
+      ;[x, y] = [0.5 + nx * 0.5, 0.5 + ny * 0.5]
+    } else {
+      ;[x, y, nx, ny] = [1, 0.5 + (s - side - arc), 1, 0]
+    }
+    return { left: `${((x + nx * OUT) * 100).toFixed(2)}%`, top: `${(((y + ny * OUT) / RATIO) * 100).toFixed(2)}%` }
+  })
+})()
 
 /**
- * Miroir de loge : rond, cerclé d'or, couronné d'ampoules.
+ * Miroir de loge en arche (la forme de VELOURS), sans cadre, bordé d'ampoules.
  *  - chaque champ rempli allume deux ampoules ; tout rempli → le miroir rayonne ;
- *  - le soin choisi se reflète dans la glace (photo « après » du soin) ;
+ *  - le soin choisi se reflète dans la glace : une texture dessinée (Textures) ;
  *  - le prénom, le jour et la prestation s'écrivent au rouge à lèvres ;
  *  - à l'envoi, une empreinte de baiser signe le miroir.
  *
@@ -60,11 +87,8 @@ export default function VanityMirror({ service, lines, filled, sealed }) {
 
   return (
     <div ref={rootRef} className={styles.mirror} data-full={lit === BULBS || undefined} role="img" aria-label={t('booking.mirrorLabel')}>
-      <div className={styles.frame}>
-        <div className={styles.glass}>
-          {services.map((s) => (
-            <img key={s.id} src={`${s.image}-sm.webp`} alt="" className={styles.photo} data-on={s.id === service || undefined} decoding="async" />
-          ))}
+      <div className={styles.glass}>
+          <Textures service={service} />
           <span className={styles.fog} />
           <span className={styles.sheen} />
 
@@ -98,11 +122,10 @@ export default function VanityMirror({ service, lines, filled, sealed }) {
               <path d="M30 18 L32 30 M42 13 L43 30 M54 15 L54 31 M66 15 L66 31 M78 13 L77 30 M90 18 L88 30 M26 40 L30 50 M40 39 L42 55 M54 39 L54 57 M66 39 L66 57 M80 39 L78 55 M94 40 L90 50" className={styles.creases} />
             </g>
           </svg>
-        </div>
       </div>
 
-      {Array.from({ length: BULBS }, (_, i) => (
-        <span key={i} className={styles.bulb} data-on={i < lit || undefined} style={{ '--a': `${(i / BULBS) * 360 - 90}deg`, '--k': i % 2 }} />
+      {BULB_POS.map((pos, i) => (
+        <span key={i} className={styles.bulb} data-on={i < lit || undefined} style={{ ...pos, '--k': i % 2 }} />
       ))}
     </div>
   )

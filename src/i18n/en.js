@@ -20,7 +20,6 @@ export default {
   service: { from: 'from', currency: 'DH', book: 'Book this treatment' },
   contact: {
     eyebrow: 'Appointments',
-    title: ['Your moment', 'is waiting.'],
     lead: 'Book in one message: tell us the treatment and the day, we confirm your slot.',
     hoursLabel: 'Opening hours',
     addressLabel: 'Address',
@@ -32,8 +31,7 @@ export default {
   },
   booking: {
     eyebrow: 'Appointments',
-    title: ['Your moment', 'is waiting.'],
-    lead: 'Choose your treatment and your time: the mirror gets ready for you.',
+    lead: 'Choose your treatment, your day, your time: the mirror lights up for you.',
     service: 'Treatment',
     item: 'Service',
     choose: 'Choose',

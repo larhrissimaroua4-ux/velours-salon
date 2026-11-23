@@ -1,65 +1,36 @@
-/* --m : diamètre du miroir */
+/* --w : largeur du miroir en arche (hauteur = 1,38 × largeur) */
 .mirror {
-  --m: min(64svh, 30rem);
-  --ring: calc(var(--m) * 0.085);
+  --w: min(47svh, 25rem);
+  --m: var(--w);
   position: relative;
-  width: var(--m);
-  height: var(--m);
+  width: var(--w);
+  height: calc(var(--w) * 1.38);
 }
 
-/* cadre doré */
-.frame {
+/* la glace seule, sans cadre : un biseau clair et une ombre portée */
+.glass {
   position: absolute;
   inset: 0;
-  padding: var(--ring);
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 32% 26%, rgb(255 246 232 / 0.7), transparent 34%),
-    conic-gradient(from 210deg, #9a7438, #e2c58f 12%, #c6a066 26%, #7d5a2b 40%, #d6b67c 55%, #f1dcb0 64%, #a7803f 78%, #7a5629 90%, #9a7438);
-  box-shadow:
-    0 2.5rem 5rem -1.5rem rgb(20 4 8 / 0.75),
-    inset 0 0 0 1px rgb(255 240 210 / 0.5);
-  transition: box-shadow 1.4s var(--ease-out);
-}
-
-.mirror[data-full] .frame {
-  box-shadow:
-    0 2.5rem 5rem -1.5rem rgb(20 4 8 / 0.75),
-    0 0 6rem 0.5rem rgb(255 214 160 / 0.28),
-    inset 0 0 0 1px rgb(255 240 210 / 0.5);
-}
-
-.glass {
-  position: relative;
-  width: 100%;
-  height: 100%;
   overflow: hidden;
-  border-radius: 50%;
-  background: radial-gradient(circle at 40% 30%, #faf3ef, #e8d5cf 55%, #c9aea6);
+  border-radius: calc(var(--w) / 2) calc(var(--w) / 2) 0.4rem 0.4rem;
+  background: linear-gradient(160deg, #faf3ef, #ead8d2 55%, #d1b5ad);
   box-shadow:
-    inset 0 0 0 2px rgb(255 255 255 / 0.55),
-    inset 0 0.6rem 1.6rem rgb(60 20 28 / 0.35);
+    inset 0 0 0 1.5px rgb(255 255 255 / 0.65),
+    inset 0 0 0 4px rgb(255 255 255 / 0.12),
+    0 2.5rem 4.5rem -1.5rem rgb(20 4 8 / 0.75);
   isolation: isolate;
-  transition: filter 1.4s var(--ease-out);
+  transition:
+    filter 1.4s var(--ease-out),
+    box-shadow 1.4s var(--ease-out);
 }
 
 .mirror[data-full] .glass {
-  filter: brightness(1.07) saturate(1.05);
-}
-
-/* le reflet du soin choisi */
-.photo {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  transition: opacity 1.4s var(--ease-out);
-}
-
-.photo[data-on] {
-  opacity: 0.92;
+  filter: brightness(1.06) saturate(1.05);
+  box-shadow:
+    inset 0 0 0 1.5px rgb(255 255 255 / 0.65),
+    inset 0 0 0 4px rgb(255 255 255 / 0.12),
+    0 2.5rem 4.5rem -1.5rem rgb(20 4 8 / 0.75),
+    0 0 6rem 0.5rem rgb(255 214 160 / 0.25);
 }
 
 /* buée claire en bas : le rouge à lèvres s'y lit */
@@ -157,10 +128,8 @@
 
 /* ---- Ampoules, posées sur le cadre */
 .bulb {
-  --size: calc(var(--m) * 0.058);
+  --size: calc(var(--w) * 0.068);
   position: absolute;
-  top: 50%;
-  left: 50%;
   width: var(--size);
   height: var(--size);
   margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
@@ -169,7 +138,6 @@
   box-shadow:
     0 0 0 1px rgb(110 80 40 / 0.45),
     inset 0 -1px 2px rgb(60 30 20 / 0.35);
-  transform: rotate(var(--a)) translateX(calc(var(--m) / 2 - var(--ring) / 2)) rotate(calc(var(--a) * -1));
   transition:
     background 0.6s ease calc(var(--k) * 0.12s),
     box-shadow 0.6s ease calc(var(--k) * 0.12s);
@@ -185,6 +153,6 @@
 
 @media (max-width: 760px) {
   .mirror {
-    --m: min(76vw, 36svh);
+    --w: min(60vw, 30svh);
   }
 }

@@ -20,7 +20,6 @@ export default {
   service: { from: 'dès', currency: 'DH', book: 'Réserver ce soin' },
   contact: {
     eyebrow: 'Rendez-vous',
-    title: ['Votre moment', 'vous attend.'],
     lead: 'Réservez en un message : dites-nous le soin et le jour, nous vous confirmons le créneau.',
     hoursLabel: 'Horaires',
     addressLabel: 'Adresse',
@@ -32,8 +31,7 @@ export default {
   },
   booking: {
     eyebrow: 'Rendez-vous',
-    title: ['Votre moment', 'vous attend.'],
-    lead: 'Choisissez votre soin et votre créneau : le miroir se prépare pour vous.',
+    lead: 'Choisissez votre soin, votre jour, votre heure : le miroir s’allume pour vous.',
     service: 'Soin',
     item: 'Prestation',
     choose: 'Choisir',

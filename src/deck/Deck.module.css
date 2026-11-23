@@ -7,7 +7,7 @@
   color: var(--fg);
 }
 
-:is(.deck[data-dark], .deck[data-photo]) {
+.deck[data-dark] {
   --fg: var(--milk);
 }
 
@@ -130,7 +130,7 @@
   color: var(--milk);
 }
 
-:is(.deck[data-dark], .deck[data-photo]) .book {
+.deck[data-dark] .book {
   color: var(--wine);
 }
 
@@ -140,8 +140,8 @@
   color: var(--milk);
 }
 
-:is(.deck[data-dark], .deck[data-photo]) .lang:hover,
-:is(.deck[data-dark], .deck[data-photo]) .burger:hover {
+.deck[data-dark] .lang:hover,
+.deck[data-dark] .burger:hover {
   color: var(--wine);
 }
 
@@ -265,12 +265,11 @@
     transition: opacity 0.6s;
   }
 
-  .deck[data-video] .bottomFade,
-  .deck[data-photo] .bottomFade {
+  .deck[data-video] .bottomFade {
     opacity: 0;
   }
 
-  :is(.deck[data-dark], .deck[data-photo]) .bottomFade {
+  .deck[data-dark] .bottomFade {
     background: linear-gradient(to top, var(--wine) 55%, transparent);
   }
 }
@@ -301,7 +300,7 @@
   color: var(--milk);
 }
 
-:is(.deck[data-dark], .deck[data-photo]) .arrows button:hover:not(:disabled) {
+.deck[data-dark] .arrows button:hover:not(:disabled) {
   color: var(--wine);
 }
 

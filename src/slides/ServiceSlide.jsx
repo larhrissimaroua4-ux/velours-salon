@@ -7,30 +7,19 @@ import { gsap, reducedMotion } from '@/lib/gsap'
 import styles from './Slides.module.css'
 
 const clamp01 = (v) => Math.min(1, Math.max(0, v))
-const smooth = (a, b, v) => {
-  const x = clamp01((v - a) / (b - a))
-  return x * x * (3 - 2 * x)
-}
-const lerp = (a, b, k) => a + (b - a) * k
 
 /**
- * Slide d'une prestation, animée AU SCROLL (le deck fait avancer scrub.target) :
- *   0 → 0,55 dans l'arche, le geste du métier sur de vraies photos (goutte,
- *            ciseaux, vernis, rouge à lèvres : src/acts) ; en parallèle les
- *            prestations s'allument une à une et la pastille tourne ;
- *   halte à 0,62 : sur téléphone,
- *            le contenu défile ici (cf. scrubPause dans App) ;
- *   0,6 → 1  l'arche s'agrandit jusqu'au plein écran, le nom du soin apparaît.
- * Le calque plein écran part exactement du cadre de l'arche (même photo, même
- * recadrage) : le passage de l'un à l'autre est invisible.
+ * Slide d'une prestation, animée AU SCROLL (le deck fait avancer scrub.target
+ * de 0 à 1) : dans l'arche, le geste du métier sur de vraies photos (goutte,
+ * ciseaux, vernis, rouge à lèvres : src/acts) ; en parallèle les prestations
+ * s'allument une à une et la pastille tourne. Sur téléphone, le contenu qui
+ * dépasse défile une fois le geste terminé (scrubPause dans App).
  */
 export default function ServiceSlide({ service, index, onBook, active, scrub }) {
   const { t, localize } = useI18n()
   const copy = t('service')
   const title = localize(service.title)
   const rootRef = useRef(null)
-  const archRef = useRef(null)
-  const expandRef = useRef(null)
   const activeRef = useRef(active)
   activeRef.current = active
   const actRef = useRef(null)
@@ -41,21 +30,11 @@ export default function ServiceSlide({ service, index, onBook, active, scrub }) 
 
   useEffect(() => {
     const root = rootRef.current
-    const arch = archRef.current
-    const expand = expandRef.current
     const items = [...root.querySelectorAll('[data-item]')]
     if (!scrub) return undefined
     const still = reducedMotion()
     let current = scrub.target
     let shown = -1
-    let flagged = false
-    const deck = root.closest('[data-deck]')
-    // en-tête en blanc lait quand la photo occupe l'écran
-    const flag = (on) => {
-      if (on === flagged || !deck) return
-      flagged = on
-      deck.toggleAttribute('data-photo', on)
-    }
 
     const tick = (_, deltaMs) => {
       if (scrub.snap) {
@@ -63,7 +42,6 @@ export default function ServiceSlide({ service, index, onBook, active, scrub }) 
         scrub.snap = false
         shown = -1
       }
-      if (!activeRef.current) flag(false)
       if (!activeRef.current && shown >= 0) return
       const dt = Math.min(deltaMs / 1000, 0.1)
       current += (scrub.target - current) * (1 - Math.exp(-dt * 6))
@@ -72,51 +50,16 @@ export default function ServiceSlide({ service, index, onBook, active, scrub }) 
       shown = current
 
       // geste du métier dans l'arche (vraies photos)
-      const t = still ? 1 : clamp01(current / 0.55)
-      actRef.current?.(t)
-
-      const e = still ? 0 : smooth(0.6, 1, current)
-      flag(activeRef.current && e > 0.45)
+      actRef.current?.(still ? 1 : clamp01(current / 0.94))
       root.style.setProperty('--p', current.toFixed(4))
-      root.style.setProperty('--e', e.toFixed(4))
 
       // prestation « en lumière »
-      const step = current < 0.03 ? -1 : Math.min(items.length - 1, Math.floor(((current - 0.03) / 0.52) * items.length))
+      const step = current < 0.03 || current > 0.97 ? -1 : Math.min(items.length - 1, Math.floor(((current - 0.03) / 0.9) * items.length))
       items.forEach((item, i) => item.toggleAttribute('data-on', i === step))
-      root.toggleAttribute('data-reading', step >= 0 && e < 0.5)
-
-      // l'arche devient plein écran
-      if (!expand) return
-      if (e <= 0) {
-        expand.style.visibility = 'hidden'
-        arch.style.visibility = ''
-        return
-      }
-      const box = root.getBoundingClientRect()
-      const a = arch.getBoundingClientRect()
-      const scroller = root.closest('[data-scroll]')
-      const top = scroller ? scroller.scrollTop : 0
-      const height = scroller ? scroller.clientHeight : box.height
-      const left = lerp(a.left - box.left, 0, e)
-      const y = lerp(a.top - box.top, top, e)
-      const w = lerp(a.width, box.width, e)
-      const h = lerp(a.height, height, e)
-      const r = lerp(a.width / 2, 0, e)
-      Object.assign(expand.style, {
-        visibility: 'visible',
-        left: `${left}px`,
-        top: `${y}px`,
-        width: `${w}px`,
-        height: `${h}px`,
-        borderRadius: `${r}px ${r}px 0 0`,
-      })
-      arch.style.visibility = 'hidden'
+      root.toggleAttribute('data-reading', step >= 0)
     }
     gsap.ticker.add(tick)
-    return () => {
-      gsap.ticker.remove(tick)
-      flag(false)
-    }
+    return () => gsap.ticker.remove(tick)
   }, [scrub])
 
   const photo = service.image ? (
@@ -159,7 +102,7 @@ export default function ServiceSlide({ service, index, onBook, active, scrub }) 
         </button>
       </div>
       <div className={styles.visual}>
-        <div ref={archRef} data-arch className={styles.arch}>
+        <div data-arch className={styles.arch}>
           <div data-zoom className={styles.archInner}>
             {photo ?? <LineArt name={service.art} className={styles.art} />}
             {photo && act?.inPhoto ? <act.Component onReady={onActReady} className={styles.photo} /> : null}
@@ -171,14 +114,6 @@ export default function ServiceSlide({ service, index, onBook, active, scrub }) 
           <span>{copy.currency}</span>
         </div>
       </div>
-      {photo ? (
-        <div ref={expandRef} className={styles.expand} aria-hidden="true">
-          {photo}
-          <p className={styles.expandCaption}>
-            {localize(service.label)}
-          </p>
-        </div>
-      ) : null}
     </div>
   )
 }

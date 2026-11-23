@@ -28,7 +28,6 @@ function enterTimeline(el) {
     .fromTo(q('[data-line]'), { scaleX: 0 }, { scaleX: 1, transformOrigin: 'left center', duration: 1.4, stagger: 0.04, ease: 'expo.inOut' }, 0.05)
     .fromTo(q('[data-fade]'), { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: 1.1, stagger: 0.055 }, 0.25)
     .fromTo(q('[data-arch]'), { clipPath: 'inset(100% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.6, ease: 'expo.inOut' }, 0)
-    .fromTo(q('[data-zoom]'), { scale: 1.4 }, { scale: 1, duration: 2.2 }, 0.15)
     .fromTo(q('[data-draw]'), { strokeDasharray: 1, strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 2.2, stagger: 0.14, ease: 'power2.inOut' }, 0.7)
     .fromTo(q('[data-badge]'), { scale: 0, rotate: -120 }, { scale: 1, rotate: 0, duration: 1.5, ease: 'back.out(1.5)' }, 0.9)
 }
@@ -40,7 +39,7 @@ function leaveTimeline(el, dir) {
     .timeline({ defaults: { ease: 'power3.in' } })
     .to(q('[data-char]'), { yPercent: -110 * dir, duration: 0.8, stagger: 0.008 }, 0)
     .to(q('[data-fade]'), { opacity: 0, y: -24 * dir, duration: 0.7, stagger: 0.025 }, 0)
-    .to(q('[data-zoom]'), { scale: 1.15, duration: 1.2, ease: 'power2.in' }, 0)
+    .to(q('[data-zoom]'), { opacity: 0, duration: 1, ease: 'power2.in' }, 0)
 }
 
 const clamp01 = (v) => Math.min(1, Math.max(0, v))
@@ -132,12 +131,10 @@ export default function Deck({ slides }) {
       gsap
         .timeline({ onComplete: finish })
         .add(leaveTimeline(fromEl, dir), 0)
-        .to(fromEl, { scale: 0.86, yPercent: -5 * dir, duration: 2.1, ease: 'expo.inOut' }, 0)
+        .to(fromEl, { yPercent: -6 * dir, duration: 2.1, ease: 'expo.inOut' }, 0)
         .fromTo(goldRef.current, { clipPath: start }, { clipPath: end, duration: 1.75, ease: 'expo.inOut' }, 0.05)
         .fromTo(curtain, { clipPath: start }, { clipPath: end, duration: 1.75, ease: 'expo.inOut' }, 0.22)
         .fromTo(toEl, { clipPath: start }, { clipPath: end, duration: 1.75, ease: 'expo.inOut' }, 0.5)
-        // la nouvelle slide arrive en zoom arrière lent
-        .fromTo(toEl, { scale: 1.18 }, { scale: 1, duration: 2.6, ease: 'expo.out' }, 0.5)
         .call(() => enter.play(), null, 1.0)
     },
     [count, slides, scrubFor],

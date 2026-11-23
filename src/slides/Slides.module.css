@@ -117,21 +117,17 @@
   height: 100%;
   object-fit: cover;
   object-position: 50% 70%;
-  transform: scale(calc(1.14 - var(--p, 0) * 0.14));
 }
 
-/* ---- Prestations animées au scroll (--p : progression, --e : agrandissement) */
+/* ---- Prestations animées au scroll (--p : progression) */
 .service .copy {
   position: relative;
   z-index: 1;
-  opacity: calc(1 - var(--e, 0) * 1.8);
-  transform: translateX(calc(var(--e, 0) * -3rem));
 }
 
 
 .service .badge {
   rotate: calc(var(--p, 0) * 180deg);
-  opacity: calc(1 - var(--e, 0) * 2.5);
 }
 
 .service .itemName,
@@ -178,41 +174,8 @@
 
 
 
-.expand {
-  position: absolute;
-  z-index: 5;
-  overflow: hidden;
-  visibility: hidden;
-  background: #0c0607;
-  pointer-events: none;
-}
 
-.expand::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(0deg, rgb(12 6 7 / 0.7) 0%, transparent 45%);
-  opacity: var(--e, 0);
-}
 
-.expandCaption {
-  position: absolute;
-  z-index: 1;
-  left: var(--gutter-wide);
-  bottom: 4.5rem;
-  display: flex;
-  align-items: baseline;
-  gap: 1.2rem;
-  margin: 0;
-  font-family: var(--serif);
-  font-size: clamp(2.6rem, 7vw, 7rem);
-  font-style: italic;
-  font-weight: 300;
-  line-height: 1;
-  color: var(--milk);
-  opacity: calc((var(--e, 0) - 0.55) * 2.4);
-  transform: translateY(calc((1 - var(--e, 0)) * 2rem));
-}
 
 
 .archInner:has(.photo)::after {
@@ -330,8 +293,6 @@
   display: block;
   width: 100%;
   height: 100%;
-  transform: scale(calc(1.12 - var(--p, 0) * 0.12));
-  transform-origin: 60% 40%;
 }
 
 .heroShade {
@@ -746,12 +707,6 @@
 
   .itemName {
     font-size: 1rem;
-  }
-
-  .expandCaption {
-    left: var(--gutter);
-    bottom: 5rem;
-    font-size: clamp(2.4rem, 12vw, 3.6rem);
   }
 
   .itemMark {

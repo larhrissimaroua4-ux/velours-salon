@@ -1,13 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { useI18n } from '@/i18n/I18n'
 import { gsap, reducedMotion } from '@/lib/gsap'
-import { services } from '@/data/salon'
 import styles from './VanityMirror.module.css'
 
 const BULBS = 16
 const RATIO = 1.38 // hauteur / largeur de l'ovale
 const OUT = 0.07 // écart des ampoules au bord de la glace (en largeurs)
-const CYCLE = 3800 // plusieurs soins : leurs photos se relaient (ms)
 
 // ampoules réparties tout autour de l'ovale, à partir du bas, côté gauche
 const BULB_POS = Array.from({ length: BULBS }, (_, i) => {
@@ -23,25 +21,12 @@ const BULB_POS = Array.from({ length: BULBS }, (_, i) => {
 /**
  * Miroir de loge ovale, sans cadre, entouré d'ampoules.
  *  - chaque champ rempli allume deux ampoules ; tout rempli → le miroir rayonne ;
- *  - dès qu'un soin est choisi, sa photo apparaît dans la glace (images/booking) ;
- *    plusieurs soins : leurs photos se relaient ;
  *  - le prénom, le jour et la prestation s'écrivent au rouge à lèvres ;
  *  - à l'envoi, une empreinte de baiser signe le miroir.
  *
- * @param {{ photos: string[], lines: { name: string, when: string, item: string }, filled: number, sealed: boolean }} props
+ * @param {{ lines: { name: string, when: string, item: string }, filled: number, sealed: boolean }} props
  */
-export default function VanityMirror({ photos, lines, filled, sealed }) {
-  const [turn, setTurn] = useState(0)
-  const key = photos.join()
-  useEffect(() => {
-    setTurn(0)
-    if (photos.length < 2) return undefined
-    const timer = window.setInterval(() => setTurn((n) => n + 1), CYCLE)
-    return () => window.clearInterval(timer)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key])
-  // la dernière photo choisie d'abord, puis les autres à tour de rôle
-  const service = photos.length ? photos[(photos.length - 1 + turn) % photos.length] : ''
+export default function VanityMirror({ lines, filled, sealed }) {
   const rootRef = useRef(null)
   const prevRef = useRef({ name: '', when: '', item: '', sealed: false })
   const { t } = useI18n()
@@ -87,19 +72,6 @@ export default function VanityMirror({ photos, lines, filled, sealed }) {
   return (
     <div ref={rootRef} className={styles.mirror} data-full={lit === BULBS || undefined} role="img" aria-label={t('booking.mirrorLabel')}>
       <div className={styles.glass}>
-          {services.map((s) => (
-            <img
-              key={s.id}
-              src={`/images/booking/${s.id}.webp`}
-              srcSet={`/images/booking/${s.id}-sm.webp 420w, /images/booking/${s.id}.webp 640w`}
-              sizes="(max-width: 760px) 60vw, 25rem"
-              alt=""
-              className={styles.photo}
-              data-on={s.id === service || undefined}
-              decoding="async"
-            />
-          ))}
-          <span className={styles.fog} />
           <span className={styles.sheen} />
 
           <div className={styles.writing}>

@@ -130,7 +130,7 @@ export default function BookingSlide({ preset }) {
           </div>
         ) : (
           <form data-fade className={styles.form} onSubmit={submit} noValidate>
-            {/* le soin : de vrais objets ; au choix, la photo apparaît dans le miroir */}
+            {/* le soin : de vrais objets, plusieurs possibles */}
             <fieldset className={styles.services} aria-invalid={errors.service ? 'true' : undefined} aria-describedby={errors.service ? `${id}-service-error` : undefined}>
               <legend>{copy.service}</legend>
               <div className={styles.tiles}>
@@ -213,7 +213,7 @@ export default function BookingSlide({ preset }) {
       </div>
 
       <div data-fade className={styles.visual}>
-        <VanityMirror photos={values.picks.map((p) => p.id)} lines={lines} filled={filled} sealed={sent} />
+        <VanityMirror lines={lines} filled={filled} sealed={sent} />
       </div>
     </div>
   )

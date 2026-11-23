@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useI18n } from '@/i18n/I18n'
 import { gsap, reducedMotion } from '@/lib/gsap'
-import Textures from './Textures'
+import { services } from '@/data/salon'
 import styles from './VanityMirror.module.css'
 
 const BULBS = 14
@@ -36,7 +36,7 @@ const BULB_POS = (() => {
 /**
  * Miroir de loge en arche (la forme de VELOURS), sans cadre, bordé d'ampoules.
  *  - chaque champ rempli allume deux ampoules ; tout rempli → le miroir rayonne ;
- *  - le soin choisi se reflète dans la glace : une texture dessinée (Textures) ;
+ *  - dès qu'un soin est choisi, sa photo apparaît dans la glace (images/booking) ;
  *  - le prénom, le jour et la prestation s'écrivent au rouge à lèvres ;
  *  - à l'envoi, une empreinte de baiser signe le miroir.
  *
@@ -88,7 +88,18 @@ export default function VanityMirror({ service, lines, filled, sealed }) {
   return (
     <div ref={rootRef} className={styles.mirror} data-full={lit === BULBS || undefined} role="img" aria-label={t('booking.mirrorLabel')}>
       <div className={styles.glass}>
-          <Textures service={service} />
+          {services.map((s) => (
+            <img
+              key={s.id}
+              src={`/images/booking/${s.id}.webp`}
+              srcSet={`/images/booking/${s.id}-sm.webp 420w, /images/booking/${s.id}.webp 640w`}
+              sizes="(max-width: 760px) 60vw, 25rem"
+              alt=""
+              className={styles.photo}
+              data-on={s.id === service || undefined}
+              decoding="async"
+            />
+          ))}
           <span className={styles.fog} />
           <span className={styles.sheen} />
 

@@ -116,20 +116,22 @@ export default function BookingSlide({ preset }) {
           </div>
         ) : (
           <form data-fade className={styles.form} onSubmit={submit} noValidate>
-            <div className={styles.field}>
-              <label htmlFor={`${id}-service`}>{copy.service}</label>
-              <select {...field('service')}>
-                <option value="" disabled>
-                  {copy.choose}
-                </option>
+            {/* le soin : de vrais objets ; au choix, la photo apparaît dans le miroir */}
+            <fieldset className={styles.services} aria-invalid={errors.service ? 'true' : undefined} aria-describedby={errors.service ? `${id}-service-error` : undefined}>
+              <legend>{copy.service}</legend>
+              <div className={styles.tiles} role="radiogroup">
                 {services.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {localize(s.label)}
-                  </option>
+                  <label key={s.id} className={styles.tile} data-on={values.service === s.id || undefined}>
+                    <input type="radio" name="service" value={s.id} checked={values.service === s.id} onChange={set('service')} className={styles.radio} />
+                    <span className={styles.icon}>
+                      <img src={`/images/booking/icon-${s.id}.webp`} alt="" decoding="async" />
+                    </span>
+                    <span className={styles.tileLabel}>{localize(s.label)}</span>
+                  </label>
                 ))}
-              </select>
+              </div>
               {error('service')}
-            </div>
+            </fieldset>
             <div className={styles.field}>
               <label htmlFor={`${id}-item`}>{copy.item}</label>
               <select {...field('item')} disabled={!service}>

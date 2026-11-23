@@ -20,7 +20,7 @@ const BULB_POS = Array.from({ length: BULBS }, (_, i) => {
 
 /**
  * Miroir de loge ovale, sans cadre, entouré d'ampoules.
- *  - chaque champ rempli allume deux ampoules ; tout rempli → le miroir rayonne ;
+ *  - dès le premier choix, toutes les ampoules s'allument ; tout rempli → le miroir rayonne ;
  *  - le prénom, le jour et la prestation s'écrivent au rouge à lèvres ;
  *  - à l'envoi, une empreinte de baiser signe le miroir.
  *
@@ -30,8 +30,9 @@ export default function VanityMirror({ lines, filled, sealed }) {
   const rootRef = useRef(null)
   const prevRef = useRef({ name: '', when: '', item: '', sealed: false })
   const { t } = useI18n()
-  // à l'envoi, toutes les ampoules s'allument (et une vague de lumière fait le tour)
-  const lit = sealed ? BULBS : Math.round((filled / 6) * BULBS)
+  // dès le premier choix, toutes les ampoules s'allument (l'une après l'autre,
+  // tout autour du miroir) ; à l'envoi, une vague de lumière fait le tour
+  const lit = sealed || filled > 0 ? BULBS : 0
 
   // une ligne s'écrit d'un geste quand elle apparaît (ou change, sauf la saisie du prénom)
   useEffect(() => {

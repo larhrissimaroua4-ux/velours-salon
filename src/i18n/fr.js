@@ -34,6 +34,7 @@ export default {
     lead: 'Choisissez votre soin, votre jour, votre heure : le miroir s’allume pour vous.',
     service: 'Soin',
     item: 'Prestation',
+    serviceHint: 'Plusieurs soins le même jour ? Choisissez-en autant que vous voulez.',
     choose: 'Choisir',
     date: 'Date',
     time: 'Heure',
@@ -41,8 +42,8 @@ export default {
     phone: 'Téléphone',
     submit: 'Réserver mon moment',
     errors: {
-      service: 'Choisissez un soin.',
-      item: 'Choisissez une prestation.',
+      service: 'Choisissez au moins un soin.',
+      item: 'Choisissez une prestation pour chaque soin.',
       date: 'Choisissez une date.',
       past: 'Cette date est déjà passée.',
       closed: 'Le salon est fermé le lundi.',

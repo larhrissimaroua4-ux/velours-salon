@@ -34,6 +34,7 @@ export default {
     lead: 'Choose your treatment, your day, your time: the mirror lights up for you.',
     service: 'Treatment',
     item: 'Service',
+    serviceHint: 'Several treatments on the same day? Choose as many as you like.',
     choose: 'Choose',
     date: 'Date',
     time: 'Time',
@@ -41,8 +42,8 @@ export default {
     phone: 'Phone',
     submit: 'Book my moment',
     errors: {
-      service: 'Choose a treatment.',
-      item: 'Choose a service.',
+      service: 'Choose at least one treatment.',
+      item: 'Choose a service for each treatment.',
       date: 'Choose a date.',
       past: 'This date has already passed.',
       closed: 'The salon is closed on Mondays.',

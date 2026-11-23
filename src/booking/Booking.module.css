@@ -90,6 +90,52 @@
     0 0.8rem 1.6rem -0.8rem rgb(0 0 0 / 0.6);
 }
 
+/* coche : un soin peut s'ajouter à un autre */
+.check {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid color-mix(in srgb, var(--milk) 40%, transparent);
+  border-radius: 50%;
+  transition:
+    background 0.4s var(--ease-out),
+    border-color 0.4s var(--ease-out);
+}
+
+.check::after {
+  content: '';
+  position: absolute;
+  left: 0.32rem;
+  top: 0.16rem;
+  width: 0.26rem;
+  height: 0.48rem;
+  border: solid var(--wine);
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform 0.4s var(--ease-out);
+}
+
+.tile[data-on] .check {
+  border-color: var(--gold-light);
+  background: var(--gold-light);
+}
+
+.tile[data-on] .check::after {
+  transform: rotate(45deg) scale(1);
+}
+
+.hint {
+  margin: 0.55rem 0 0;
+  font-size: 0.74rem;
+  color: color-mix(in srgb, var(--milk) 62%, transparent);
+}
+
+.wide {
+  grid-column: 1 / -1;
+}
+
 /* bouton radio natif masqué, mais focusable au clavier */
 .radio {
   position: absolute;

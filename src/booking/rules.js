@@ -6,11 +6,24 @@ const toMinutes = (value) => {
   return h * 60 + m
 }
 
-/** Demande vide. */
-export const EMPTY = { service: '', item: '', date: '', time: '', name: '', phone: '' }
+/**
+ * Demande vide. `picks` : les soins choisis, dans l'ordre du choix
+ * ({ id, item } ; item = index de la prestation, '' tant qu'elle n'est pas choisie).
+ * Une cliente peut réserver plusieurs soins le même jour.
+ */
+export const EMPTY = { picks: [], date: '', time: '', name: '', phone: '' }
 
-/** Champs comptés pour allumer les ampoules du miroir. */
-export const FIELDS = ['service', 'item', 'date', 'time', 'name', 'phone']
+/** Nombre d'étapes remplies (6 au total) : allume les ampoules du miroir. */
+export function filledSteps(values) {
+  return [
+    values.picks.length > 0,
+    values.picks.length > 0 && values.picks.every((p) => p.item !== ''),
+    values.date !== '',
+    values.time !== '',
+    values.name.trim().length >= 2,
+    values.phone.replace(/\D/g, '').length >= 8,
+  ].filter(Boolean).length
+}
 
 export function todayISO(now = new Date()) {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
@@ -34,8 +47,8 @@ export function timeSlots(dateISO) {
 /** { champ: clé d'erreur } ; vide si la demande est complète. */
 export function validate(values, now = new Date()) {
   const errors = {}
-  if (!values.service) errors.service = 'service'
-  if (!values.item) errors.item = 'item'
+  if (!values.picks.length) errors.service = 'service'
+  else if (values.picks.some((p) => p.item === '')) errors.item = 'item'
   if (!values.date) errors.date = 'date'
   else {
     const day = new Date(`${values.date}T12:00`).getDay()

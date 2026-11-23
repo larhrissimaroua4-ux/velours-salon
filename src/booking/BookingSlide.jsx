@@ -3,14 +3,15 @@ import Split from '@/components/Split'
 import { salon, services } from '@/data/salon'
 import { useI18n } from '@/i18n/I18n'
 import slides from '@/slides/Slides.module.css'
-import { EMPTY, FIELDS, maxDateISO, timeSlots, todayISO, validate } from './rules'
+import { EMPTY, filledSteps, maxDateISO, timeSlots, todayISO, validate } from './rules'
 import VanityMirror from './VanityMirror'
 import styles from './Booking.module.css'
 
 /**
  * Slide « Rendez-vous » : formulaire à gauche, miroir de loge à droite qui
  * s'allume et s'écrit au fil des choix. L'envoi signe le miroir d'un baiser et
- * prépare le message WhatsApp. `preset` : soin choisi depuis sa slide.
+ * prépare le message WhatsApp. Plusieurs soins peuvent être réservés ensemble.
+ * `preset` : soin choisi depuis sa slide (ajouté à la sélection).
  */
 export default function BookingSlide({ preset }) {
   const { t, localize, locale } = useI18n()
@@ -25,21 +26,34 @@ export default function BookingSlide({ preset }) {
   // « Réserver ce soin » depuis une slide : le soin est déjà choisi
   useEffect(() => {
     if (!preset) return
-    setValues((v) => (v.service === preset.id ? v : { ...v, service: preset.id, item: '' }))
+    setValues((v) => (v.picks.some((p) => p.id === preset.id) ? v : { ...v, picks: [...v.picks, { id: preset.id, item: '' }] }))
     setSent(false)
   }, [preset])
 
-  const service = services.find((s) => s.id === values.service)
-  const item = values.item === '' ? undefined : service?.items[Number(values.item)]
+  // soins choisis, avec leur prestation (si elle est choisie)
+  const chosen = values.picks.map((p) => {
+    const service = services.find((s) => s.id === p.id)
+    return { ...p, service, item: p.item === '' ? undefined : service.items[Number(p.item)] }
+  })
+  const items = chosen.filter((c) => c.item)
+  const total = items.reduce((sum, c) => sum + c.item.price, 0)
   const slots = useMemo(() => timeSlots(values.date), [values.date])
 
-  const set = (field) => (event) => {
-    const next = { ...values, [field]: event.target.value }
-    if (field === 'service') next.item = ''
-    if (field === 'date' && next.time && !timeSlots(next.date).includes(next.time)) next.time = ''
+  const update = (next) => {
     setValues(next)
     if (touched) setErrors(validate(next))
   }
+  const set = (field) => (event) => {
+    const next = { ...values, [field]: event.target.value }
+    if (field === 'date' && next.time && !timeSlots(next.date).includes(next.time)) next.time = ''
+    update(next)
+  }
+  // un soin de plus, ou de moins
+  const toggle = (serviceId) => {
+    const has = values.picks.some((p) => p.id === serviceId)
+    update({ ...values, picks: has ? values.picks.filter((p) => p.id !== serviceId) : [...values.picks, { id: serviceId, item: '' }] })
+  }
+  const setItem = (serviceId) => (event) => update({ ...values, picks: values.picks.map((p) => (p.id === serviceId ? { ...p, item: event.target.value } : p)) })
 
   const longDate = (value) =>
     new Intl.DateTimeFormat(locale, { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(`${value}T12:00`))
@@ -49,9 +63,9 @@ export default function BookingSlide({ preset }) {
   const lines = {
     name: values.name.trim(),
     when: [values.date ? shortDate(values.date) : '', time].filter(Boolean).join(' · '),
-    item: item ? `${localize(item.name)} · ${item.time}` : service ? localize(service.label) : '',
+    item: items.length ? `${items.map((c) => localize(c.item.name)).join(' + ')} · ${total} DH` : chosen.map((c) => localize(c.service.label)).join(' + '),
   }
-  const filled = FIELDS.filter((f) => (f === 'name' ? values.name.trim().length >= 2 : f === 'phone' ? values.phone.replace(/\D/g, '').length >= 8 : values[f] !== '')).length
+  const filled = filledSteps(values)
 
   const submit = (event) => {
     event.preventDefault()
@@ -66,7 +80,7 @@ export default function BookingSlide({ preset }) {
   }
 
   const message = copy.message
-    .replace('{item}', item ? `${localize(item.name)} (${item.time})` : '')
+    .replace('{item}', items.map((c) => `${localize(c.item.name)} (${c.item.time})`).join(' + '))
     .replace('{date}', values.date ? longDate(values.date) : '')
     .replace('{time}', values.time)
     .replace('{name}', values.name.trim())
@@ -119,33 +133,48 @@ export default function BookingSlide({ preset }) {
             {/* le soin : de vrais objets ; au choix, la photo apparaît dans le miroir */}
             <fieldset className={styles.services} aria-invalid={errors.service ? 'true' : undefined} aria-describedby={errors.service ? `${id}-service-error` : undefined}>
               <legend>{copy.service}</legend>
-              <div className={styles.tiles} role="radiogroup">
-                {services.map((s) => (
-                  <label key={s.id} className={styles.tile} data-on={values.service === s.id || undefined}>
-                    <input type="radio" name="service" value={s.id} checked={values.service === s.id} onChange={set('service')} className={styles.radio} />
-                    <span className={styles.icon}>
-                      <img src={`/images/booking/icon-${s.id}.webp`} alt="" decoding="async" />
-                    </span>
-                    <span className={styles.tileLabel}>{localize(s.label)}</span>
-                  </label>
-                ))}
+              <div className={styles.tiles}>
+                {services.map((s) => {
+                  const on = values.picks.some((p) => p.id === s.id)
+                  return (
+                    <label key={s.id} className={styles.tile} data-on={on || undefined}>
+                      <input type="checkbox" name="service" value={s.id} checked={on} onChange={() => toggle(s.id)} className={styles.radio} />
+                      <span className={styles.check} aria-hidden="true" />
+                      <span className={styles.icon}>
+                        <img src={`/images/booking/icon-${s.id}.webp`} alt="" decoding="async" />
+                      </span>
+                      <span className={styles.tileLabel}>{localize(s.label)}</span>
+                    </label>
+                  )
+                })}
               </div>
+              <p className={styles.hint}>{copy.serviceHint}</p>
               {error('service')}
             </fieldset>
-            <div className={styles.field}>
-              <label htmlFor={`${id}-item`}>{copy.item}</label>
-              <select {...field('item')} disabled={!service}>
-                <option value="" disabled>
-                  {copy.choose}
-                </option>
-                {service?.items.map((it, i) => (
-                  <option key={it.name.fr} value={i}>
-                    {localize(it.name)} · {it.price} DH
+
+            {/* une prestation par soin choisi */}
+            {chosen.map((c) => (
+              <div key={c.id} className={`${styles.field} ${styles.wide}`}>
+                <label htmlFor={`${id}-item-${c.id}`}>
+                  {copy.item} · {localize(c.service.label)}
+                </label>
+                <select id={`${id}-item-${c.id}`} value={c.item ? String(values.picks.find((p) => p.id === c.id).item) : ''} onChange={setItem(c.id)} aria-invalid={errors.item && !c.item ? 'true' : undefined}>
+                  <option value="" disabled>
+                    {copy.choose}
                   </option>
-                ))}
-              </select>
-              {error('item')}
-            </div>
+                  {c.service.items.map((it, i) => (
+                    <option key={it.name.fr} value={i}>
+                      {localize(it.name)} · {it.time} · {it.price} DH
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ))}
+            {errors.item ? (
+              <p className={`${styles.error} ${styles.wide}`} role="alert">
+                {copy.errors.item}
+              </p>
+            ) : null}
             <div className={styles.field}>
               <label htmlFor={`${id}-date`}>{copy.date}</label>
               <input type="date" min={limits.min} max={limits.max} {...field('date')} />
@@ -184,7 +213,7 @@ export default function BookingSlide({ preset }) {
       </div>
 
       <div data-fade className={styles.visual}>
-        <VanityMirror service={values.service} lines={lines} filled={filled} sealed={sent} />
+        <VanityMirror photos={values.picks.map((p) => p.id)} lines={lines} filled={filled} sealed={sent} />
       </div>
     </div>
   )

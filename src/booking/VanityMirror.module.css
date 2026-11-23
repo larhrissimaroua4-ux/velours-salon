@@ -1,4 +1,4 @@
-/* --w : largeur du miroir en arche (hauteur = 1,38 × largeur) */
+/* --w : largeur du miroir ovale (hauteur = 1,38 × largeur) */
 .mirror {
   --w: min(47svh, 25rem);
   --m: var(--w);
@@ -12,7 +12,7 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
-  border-radius: calc(var(--w) / 2) calc(var(--w) / 2) 0.4rem 0.4rem;
+  border-radius: 50%;
   background: linear-gradient(160deg, #faf3ef, #ead8d2 55%, #d1b5ad);
   box-shadow:
     inset 0 0 0 1.5px rgb(255 255 255 / 0.65),
@@ -70,7 +70,7 @@
 /* ---- Écriture au rouge à lèvres */
 .writing {
   position: absolute;
-  inset: auto 12% 13%;
+  inset: auto 15% 15%;
   display: grid;
   justify-items: center;
   text-align: center;
@@ -127,9 +127,9 @@
 /* ---- Baiser */
 .kiss {
   position: absolute;
-  top: 15%;
-  right: 13%;
-  width: 21%;
+  top: 19%;
+  right: 19%;
+  width: 20%;
   opacity: 0;
   mix-blend-mode: multiply;
 }

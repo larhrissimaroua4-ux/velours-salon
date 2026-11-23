@@ -1,48 +1,47 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useI18n } from '@/i18n/I18n'
 import { gsap, reducedMotion } from '@/lib/gsap'
 import { services } from '@/data/salon'
 import styles from './VanityMirror.module.css'
 
-const BULBS = 14
-const RATIO = 1.38 // hauteur / largeur de l'arche
-const OUT = 0.075 // écart des ampoules au bord de la glace (en largeurs)
+const BULBS = 16
+const RATIO = 1.38 // hauteur / largeur de l'ovale
+const OUT = 0.07 // écart des ampoules au bord de la glace (en largeurs)
+const CYCLE = 3800 // plusieurs soins : leurs photos se relaient (ms)
 
-// ampoules réparties le long de l'arche (côté gauche ↑, cintre, côté droit ↓)
-const BULB_POS = (() => {
-  const side = RATIO - 0.5
-  const arc = Math.PI * 0.5
-  const total = side * 2 + arc
-  const margin = 0.16
-  return Array.from({ length: BULBS }, (_, i) => {
-    const s = margin + (i / (BULBS - 1)) * (total - margin * 2)
-    let x
-    let y
-    let nx
-    let ny
-    if (s < side) {
-      ;[x, y, nx, ny] = [0, RATIO - s, -1, 0]
-    } else if (s < side + arc) {
-      const a = Math.PI + (s - side) / 0.5
-      ;[nx, ny] = [Math.cos(a), Math.sin(a)]
-      ;[x, y] = [0.5 + nx * 0.5, 0.5 + ny * 0.5]
-    } else {
-      ;[x, y, nx, ny] = [1, 0.5 + (s - side - arc), 1, 0]
-    }
-    return { left: `${((x + nx * OUT) * 100).toFixed(2)}%`, top: `${(((y + ny * OUT) / RATIO) * 100).toFixed(2)}%` }
-  })
-})()
+// ampoules réparties tout autour de l'ovale, à partir du bas, côté gauche
+const BULB_POS = Array.from({ length: BULBS }, (_, i) => {
+  const a = Math.PI / 2 + ((i + 0.5) / BULBS) * Math.PI * 2
+  const [rx, ry] = [0.5, RATIO / 2]
+  const [x, y] = [0.5 + Math.cos(a) * rx, RATIO / 2 + Math.sin(a) * ry]
+  // normale à l'ellipse
+  const [nx0, ny0] = [Math.cos(a) / rx, Math.sin(a) / ry]
+  const n = Math.hypot(nx0, ny0)
+  return { left: `${((x + (nx0 / n) * OUT) * 100).toFixed(2)}%`, top: `${(((y + (ny0 / n) * OUT) / RATIO) * 100).toFixed(2)}%` }
+})
 
 /**
- * Miroir de loge en arche (la forme de VELOURS), sans cadre, bordé d'ampoules.
+ * Miroir de loge ovale, sans cadre, entouré d'ampoules.
  *  - chaque champ rempli allume deux ampoules ; tout rempli → le miroir rayonne ;
  *  - dès qu'un soin est choisi, sa photo apparaît dans la glace (images/booking) ;
+ *    plusieurs soins : leurs photos se relaient ;
  *  - le prénom, le jour et la prestation s'écrivent au rouge à lèvres ;
  *  - à l'envoi, une empreinte de baiser signe le miroir.
  *
- * @param {{ service: string, lines: { name: string, when: string, item: string }, filled: number, sealed: boolean }} props
+ * @param {{ photos: string[], lines: { name: string, when: string, item: string }, filled: number, sealed: boolean }} props
  */
-export default function VanityMirror({ service, lines, filled, sealed }) {
+export default function VanityMirror({ photos, lines, filled, sealed }) {
+  const [turn, setTurn] = useState(0)
+  const key = photos.join()
+  useEffect(() => {
+    setTurn(0)
+    if (photos.length < 2) return undefined
+    const timer = window.setInterval(() => setTurn((n) => n + 1), CYCLE)
+    return () => window.clearInterval(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key])
+  // la dernière photo choisie d'abord, puis les autres à tour de rôle
+  const service = photos.length ? photos[(photos.length - 1 + turn) % photos.length] : ''
   const rootRef = useRef(null)
   const prevRef = useRef({ name: '', when: '', item: '', sealed: false })
   const { t } = useI18n()

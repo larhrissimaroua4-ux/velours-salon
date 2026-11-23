@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import { useI18n } from '@/i18n/I18n'
 import { gsap, reducedMotion } from '@/lib/gsap'
 import styles from './VanityMirror.module.css'
@@ -33,6 +33,26 @@ export default function VanityMirror({ lines, filled, sealed }) {
   // dès le premier choix, toutes les ampoules s'allument (l'une après l'autre,
   // tout autour du miroir) ; à l'envoi, une vague de lumière fait le tour
   const lit = sealed || filled > 0 ? BULBS : 0
+
+  // l'écriture ne déborde jamais : le prénom et la date restent sur une ligne,
+  // réduits si besoin pour tenir dans la glace, toujours centrés
+  useLayoutEffect(() => {
+    const root = rootRef.current
+    const fit = () => {
+      root.querySelectorAll('[data-fit]').forEach((el) => {
+        el.style.fontSize = ''
+        const room = el.clientWidth
+        const need = el.scrollWidth
+        if (need > room && room > 0) {
+          const base = parseFloat(getComputedStyle(el).fontSize)
+          el.style.fontSize = `${Math.max(base * 0.45, (base * room) / need - 0.5)}px`
+        }
+      })
+    }
+    fit()
+    window.addEventListener('resize', fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [lines.name, lines.when])
 
   // une ligne s'écrit d'un geste quand elle apparaît (ou change, sauf la saisie du prénom)
   useEffect(() => {
@@ -77,13 +97,13 @@ export default function VanityMirror({ lines, filled, sealed }) {
           <span className={styles.sheen} />
 
           <div className={styles.writing}>
-            <p data-write="name" className={styles.name}>
+            <p data-write="name" data-fit className={styles.name}>
               {lines.name}
             </p>
             <svg viewBox="0 0 200 20" className={styles.swashSvg} aria-hidden="true">
               <path data-swash d="M8 12 C50 4 100 18 150 9 C168 6 182 6 194 10" pathLength="1" className={styles.swash} style={{ opacity: lines.name ? 1 : 0 }} />
             </svg>
-            <p data-write="when" className={styles.when}>
+            <p data-write="when" data-fit className={styles.when}>
               {lines.when}
             </p>
             <p data-write="item" className={styles.item}>

@@ -43,7 +43,7 @@
 /* ---- Écriture au rouge à lèvres */
 .writing {
   position: absolute;
-  inset: 0 15%;
+  inset: 12% 15%;
   display: grid;
   align-content: center;
   justify-items: center;
@@ -53,13 +53,26 @@
 .name,
 .when,
 .item {
+  width: 100%;
   margin: 0;
+  overflow: hidden;
   font-family: var(--serif);
   font-style: italic;
   color: #a3162f;
   text-shadow:
     0 1px 0 rgb(255 225 225 / 0.55),
     0 0 1px rgb(90 0 20 / 0.5);
+}
+
+.name,
+.when {
+  white-space: nowrap;
+}
+
+/* la liste des prestations passe à la ligne, lignes équilibrées */
+.item {
+  overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 
 .name {
@@ -71,7 +84,6 @@
 
 .when {
   min-height: 1.3em;
-  white-space: nowrap;
   font-size: calc(var(--m) * 0.048);
   font-weight: 500;
 }

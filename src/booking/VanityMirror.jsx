@@ -30,7 +30,8 @@ export default function VanityMirror({ lines, filled, sealed }) {
   const rootRef = useRef(null)
   const prevRef = useRef({ name: '', when: '', item: '', sealed: false })
   const { t } = useI18n()
-  const lit = Math.round((filled / 6) * BULBS)
+  // à l'envoi, toutes les ampoules s'allument (et une vague de lumière fait le tour)
+  const lit = sealed ? BULBS : Math.round((filled / 6) * BULBS)
 
   // une ligne s'écrit d'un geste quand elle apparaît (ou change, sauf la saisie du prénom)
   useEffect(() => {
@@ -107,7 +108,7 @@ export default function VanityMirror({ lines, filled, sealed }) {
       </div>
 
       {BULB_POS.map((pos, i) => (
-        <span key={i} className={styles.bulb} data-on={i < lit || undefined} style={{ ...pos, '--k': i % 2 }} />
+        <span key={i} className={styles.bulb} data-on={i < lit || undefined} data-sealed={sealed || undefined} style={{ ...pos, '--k': i % 2, '--i': i }} />
       ))}
     </div>
   )

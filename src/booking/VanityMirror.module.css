@@ -145,6 +145,23 @@
     0 0 calc(var(--m) * 0.09) calc(var(--m) * 0.02) rgb(255 200 130 / 0.35);
 }
 
+/* réservation envoyée : une vague de lumière fait le tour du miroir, puis toutes restent allumées */
+.bulb[data-sealed] {
+  animation: bulb-wave 1.6s ease-in-out calc(var(--i) * 0.07s) 2;
+}
+
+@keyframes bulb-wave {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+
+  40% {
+    filter: brightness(1.6) saturate(1.2);
+    transform: scale(1.25);
+  }
+}
+
 @media (max-width: 760px) {
   .mirror {
     --w: min(60vw, 30svh);

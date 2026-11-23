@@ -1,0 +1,229 @@
+.panel {
+  display: grid;
+  gap: 2.2rem;
+  width: min(72rem, 100%);
+  margin: auto;
+}
+
+/* ---- Liens des slides : téléphone seulement (les points latéraux font le reste) */
+.links {
+  display: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.linkMask {
+  overflow: hidden;
+}
+
+.link {
+  padding: 0.15rem 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--serif);
+  font-size: 1.7rem;
+  font-weight: 320;
+  line-height: 1.15;
+  text-align: left;
+  cursor: pointer;
+}
+
+.link[data-active] {
+  color: var(--gold-light);
+  font-style: italic;
+}
+
+/* ---- Adresse */
+.find {
+  display: grid;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+.address {
+  display: grid;
+  gap: 1.4rem;
+  align-content: center;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+}
+
+.rule {
+  display: inline-block;
+  width: 2.4rem;
+  height: 1px;
+  background: var(--gold);
+}
+
+.street {
+  display: grid;
+  font-family: var(--serif);
+  font-size: clamp(2.2rem, 4.6vw, 4.8rem);
+  font-style: normal;
+  font-weight: 300;
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+}
+
+.lineMask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+
+.line {
+  display: inline-block;
+}
+
+.italic {
+  font-style: italic;
+  color: var(--gold-light);
+}
+
+.coords {
+  min-height: 1.4em;
+  margin: 0;
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, var(--milk) 60%, transparent);
+}
+
+.hours {
+  margin: 0;
+}
+
+.hours dt {
+  margin-bottom: 0.5rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+}
+
+.hours dd {
+  margin: 0 0 0.25rem;
+  font-size: 0.95rem;
+}
+
+.hours dd span {
+  color: color-mix(in srgb, var(--milk) 70%, transparent);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.8rem;
+}
+
+.book {
+  position: relative;
+  display: inline-flex;
+  padding: 1rem 1.6rem;
+  overflow: hidden;
+  border: 1px solid var(--milk);
+  border-radius: 999px;
+  background: none;
+  color: var(--milk);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  isolation: isolate;
+}
+
+.bookFill {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--milk);
+  border-radius: 50% 50% 0 0;
+  transform: translateY(102%);
+  transition: transform 0.7s var(--ease-out), border-radius 0.7s var(--ease-out);
+}
+
+.bookLabel {
+  transition: color 0.5s var(--ease-out);
+}
+
+.book:hover .bookFill {
+  transform: none;
+  border-radius: 0;
+}
+
+.book:hover .bookLabel {
+  color: var(--wine);
+}
+
+.textLink {
+  position: relative;
+  color: var(--milk);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.textLink::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.3rem;
+  height: 1px;
+  background: currentColor;
+  transform-origin: left;
+  transition: transform 0.6s var(--ease-out);
+}
+
+.textLink:hover::after {
+  transform: scaleX(0.3);
+}
+
+/* ---- Poudrier */
+.compactWrap {
+  display: grid;
+  justify-items: center;
+}
+
+.compactWrap > * {
+  --d: min(52vw, 15rem);
+}
+
+@media (min-width: 761px) {
+  .find {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4rem;
+  }
+
+  .compactWrap > * {
+    --d: min(36svh, 19rem);
+  }
+}
+
+@media (max-width: 760px) {
+  .links {
+    display: grid;
+    gap: 0.1rem;
+  }
+
+  .find {
+    gap: 2.4rem;
+  }
+}

@@ -1,7 +1,12 @@
 // Informations du salon : à remplacer par celles de la cliente.
 export const salon = {
   name: 'VELOURS',
-  address: { fr: 'Casablanca, Maroc', en: 'Casablanca, Morocco' },
+  // Adresse de démonstration (fictive) : à remplacer par celle de la cliente
+  address: { fr: '18, rue Ibnou Mounir, Maârif, Casablanca', en: '18 Ibnou Mounir Street, Maarif, Casablanca' },
+  street: { fr: '18, rue Ibnou Mounir', en: '18 Ibnou Mounir Street' },
+  district: { fr: 'Maârif, Casablanca', en: 'Maarif, Casablanca' },
+  lat: 33.5862,
+  lng: -7.6352,
   hours: [
     { days: { fr: 'Du mardi au samedi', en: 'Tuesday to Saturday' }, time: { fr: '10 h à 20 h', en: '10 am to 8 pm' } },
     { days: { fr: 'Dimanche', en: 'Sunday' }, time: { fr: '10 h à 16 h', en: '10 am to 4 pm' } },
@@ -9,7 +14,18 @@ export const salon = {
   // Démonstration : numéro au format 2126XXXXXXXX, vrai compte Instagram, adresse exacte
   whatsapp: null,
   instagram: 'https://www.instagram.com/',
-  maps: 'https://www.google.com/maps/search/?api=1&query=Casablanca',
+  maps: 'https://www.google.com/maps/search/?api=1&query=rue+Ibnou+Mounir+Maarif+Casablanca',
+}
+
+/** Prise de rendez-vous : jours d'ouverture (0 = dimanche), créneaux, délai. */
+export const booking = {
+  openDays: [0, 2, 3, 4, 5, 6],
+  firstSlot: '10:00',
+  lastSlot: '19:00',
+  // le dimanche, dernier créneau plus tôt (fermeture à 16 h)
+  lastSlotSunday: '15:00',
+  slotMinutes: 30,
+  advanceDays: 60,
 }
 
 /**

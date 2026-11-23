@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Split from '@/components/Split'
+import FindPanel from '@/find/FindPanel'
 import { useI18n } from '@/i18n/I18n'
 import { gsap, reducedMotion } from '@/lib/gsap'
 import styles from './Deck.module.css'
@@ -338,15 +339,14 @@ export default function Deck({ slides }) {
   // ---- Menu plein écran
   useEffect(() => {
     const menu = menuRef.current
-    const q = gsap.utils.selector(menu)
     if (menuOpen) {
       menu.dataset.open = 'true'
       gsap
         .timeline()
         .set(menu, { visibility: 'visible' })
-        .fromTo(menu, { clipPath: 'inset(0% 0% 100% 0% round 0% 0% 50% 50%)' }, { clipPath: 'inset(0% 0% 0% 0% round 0% 0% 0% 0%)', duration: reducedMotion() ? 0 : 1, ease: 'expo.inOut' })
-        .fromTo(q('[data-menu-item]'), { yPercent: 110 }, { yPercent: 0, duration: 1, stagger: 0.05 }, 0.45)
-      menu.querySelector('a, button')?.focus()
+        .fromTo(menu, { clipPath: 'inset(0% 0% 100% 0% round 0% 0% 50% 50%)' }, { clipPath: 'inset(0% 0% 0% 0% round 0% 0% 0% 0%)', duration: reducedMotion() ? 0 : 1.2, ease: 'expo.inOut' })
+      menu.scrollTop = 0
+      ;[...menu.querySelectorAll('a, button')].find((el) => el.offsetParent !== null)?.focus()
     } else if (menu.dataset.open) {
       delete menu.dataset.open
       gsap
@@ -376,9 +376,10 @@ export default function Deck({ slides }) {
           <button type="button" className={styles.book} onClick={() => go(count - 1)}>
             {t('nav.book')}
           </button>
-          <button type="button" className={styles.burger} onClick={() => setMenuOpen((open) => !open)} aria-expanded={menuOpen} aria-controls="deck-menu">
-            <span className={styles.burgerLines} data-open={menuOpen || undefined} aria-hidden="true" />
-            <span className={styles.burgerLabel}>{menuOpen ? t('nav.close') : t('nav.menu')}</span>
+          <button type="button" className={styles.burger} onClick={() => setMenuOpen((open) => !open)} aria-expanded={menuOpen} aria-controls="deck-menu" aria-label={menuOpen ? t('nav.close') : t('nav.findLabel')}>
+            <span className={styles.burgerLabel} aria-hidden="true">{menuOpen ? t('nav.close') : t('nav.find')}</span>
+            {/* petit poudrier : perle au centre ; ouvert → croix */}
+            <span className={styles.pin} data-open={menuOpen || undefined} aria-hidden="true" />
           </button>
         </div>
       </header>
@@ -425,16 +426,8 @@ export default function Deck({ slides }) {
       </div>
 
       {/* ---- Menu */}
-      <div ref={menuRef} id="deck-menu" className={styles.menu} role="dialog" aria-modal="true" aria-label={t('nav.menu')} inert={!menuOpen}>
-        <ol className={styles.menuList}>
-          {slides.map((slide, i) => (
-            <li key={slide.id} className={styles.menuRow}>
-              <button type="button" data-menu-item className={styles.menuLink} data-active={i === index || undefined} onClick={() => pick(i)}>
-                {slide.label}
-              </button>
-            </li>
-          ))}
-        </ol>
+      <div ref={menuRef} id="deck-menu" className={styles.menu} role="dialog" aria-modal="true" aria-label={t('nav.find')} inert={!menuOpen}>
+        <FindPanel open={menuOpen} slides={slides} current={index} onPick={pick} onBook={() => pick(count - 1)} />
       </div>
 
       {/* ---- Intro */}

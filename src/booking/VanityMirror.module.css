@@ -1,0 +1,190 @@
+/* --m : diamètre du miroir */
+.mirror {
+  --m: min(64svh, 30rem);
+  --ring: calc(var(--m) * 0.085);
+  position: relative;
+  width: var(--m);
+  height: var(--m);
+}
+
+/* cadre doré */
+.frame {
+  position: absolute;
+  inset: 0;
+  padding: var(--ring);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 26%, rgb(255 246 232 / 0.7), transparent 34%),
+    conic-gradient(from 210deg, #9a7438, #e2c58f 12%, #c6a066 26%, #7d5a2b 40%, #d6b67c 55%, #f1dcb0 64%, #a7803f 78%, #7a5629 90%, #9a7438);
+  box-shadow:
+    0 2.5rem 5rem -1.5rem rgb(20 4 8 / 0.75),
+    inset 0 0 0 1px rgb(255 240 210 / 0.5);
+  transition: box-shadow 1.4s var(--ease-out);
+}
+
+.mirror[data-full] .frame {
+  box-shadow:
+    0 2.5rem 5rem -1.5rem rgb(20 4 8 / 0.75),
+    0 0 6rem 0.5rem rgb(255 214 160 / 0.28),
+    inset 0 0 0 1px rgb(255 240 210 / 0.5);
+}
+
+.glass {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 30%, #faf3ef, #e8d5cf 55%, #c9aea6);
+  box-shadow:
+    inset 0 0 0 2px rgb(255 255 255 / 0.55),
+    inset 0 0.6rem 1.6rem rgb(60 20 28 / 0.35);
+  isolation: isolate;
+  transition: filter 1.4s var(--ease-out);
+}
+
+.mirror[data-full] .glass {
+  filter: brightness(1.07) saturate(1.05);
+}
+
+/* le reflet du soin choisi */
+.photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.4s var(--ease-out);
+}
+
+.photo[data-on] {
+  opacity: 0.92;
+}
+
+/* buée claire en bas : le rouge à lèvres s'y lit */
+.fog {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgb(247 236 232 / 0.9) 18%, rgb(247 236 232 / 0.55) 42%, transparent 66%);
+}
+
+.sheen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(125deg, transparent 22%, rgb(255 255 255 / 0.28) 30%, transparent 40%, transparent 62%, rgb(255 255 255 / 0.16) 68%, transparent 74%);
+  pointer-events: none;
+}
+
+/* ---- Écriture au rouge à lèvres */
+.writing {
+  position: absolute;
+  inset: auto 12% 13%;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+.name,
+.when,
+.item {
+  margin: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  color: #a3162f;
+  text-shadow:
+    0 1px 0 rgb(255 225 225 / 0.55),
+    0 0 1px rgb(90 0 20 / 0.5);
+}
+
+.name {
+  min-height: 1.1em;
+  font-size: calc(var(--m) * 0.105);
+  font-weight: 560;
+  line-height: 1.05;
+}
+
+.when {
+  min-height: 1.3em;
+  white-space: nowrap;
+  font-size: calc(var(--m) * 0.048);
+  font-weight: 500;
+}
+
+.item {
+  min-height: 1.3em;
+  font-size: calc(var(--m) * 0.04);
+  font-weight: 450;
+}
+
+.swashSvg {
+  width: 62%;
+  height: calc(var(--m) * 0.04);
+  margin: -0.1em 0 0.25em;
+  overflow: visible;
+}
+
+.swash {
+  fill: none;
+  stroke: #a3162f;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  transition: opacity 0.4s;
+}
+
+/* ---- Baiser */
+.kiss {
+  position: absolute;
+  top: 15%;
+  right: 13%;
+  width: 21%;
+  opacity: 0;
+  mix-blend-mode: multiply;
+}
+
+.lipTop,
+.lipBottom {
+  fill: #b0182f;
+}
+
+.creases {
+  fill: none;
+  stroke: rgb(120 10 30 / 0.55);
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+
+/* ---- Ampoules, posées sur le cadre */
+.bulb {
+  --size: calc(var(--m) * 0.058);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--size);
+  height: var(--size);
+  margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, rgb(255 255 255 / 0.85), rgb(240 228 222 / 0.55) 45%, rgb(160 130 120 / 0.6));
+  box-shadow:
+    0 0 0 1px rgb(110 80 40 / 0.45),
+    inset 0 -1px 2px rgb(60 30 20 / 0.35);
+  transform: rotate(var(--a)) translateX(calc(var(--m) / 2 - var(--ring) / 2)) rotate(calc(var(--a) * -1));
+  transition:
+    background 0.6s ease calc(var(--k) * 0.12s),
+    box-shadow 0.6s ease calc(var(--k) * 0.12s);
+}
+
+.bulb[data-on] {
+  background: radial-gradient(circle at 40% 35%, #fff, #fff4dc 40%, #f6d69a 75%, #e8b867);
+  box-shadow:
+    0 0 0 1px rgb(255 230 180 / 0.8),
+    0 0 calc(var(--m) * 0.03) calc(var(--m) * 0.012) rgb(255 220 160 / 0.85),
+    0 0 calc(var(--m) * 0.09) calc(var(--m) * 0.02) rgb(255 200 130 / 0.35);
+}
+
+@media (max-width: 760px) {
+  .mirror {
+    --m: min(76vw, 36svh);
+  }
+}

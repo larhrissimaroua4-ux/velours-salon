@@ -152,39 +152,59 @@
   padding: 0 1.1rem;
 }
 
-.burgerLines {
+/* repère : un petit poudrier doré, perle au centre */
+.pin {
   position: relative;
-  width: 1rem;
-  height: 0.45rem;
+  width: 1.05rem;
+  height: 1.05rem;
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  transition: transform 0.6s var(--ease-out), border-color 0.4s;
 }
 
-.burgerLines::before,
-.burgerLines::after {
+.pin::before,
+.pin::after {
   content: '';
   position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: currentColor;
-  transition: transform 0.5s var(--ease-out), top 0.5s var(--ease-out);
-}
-
-.burgerLines::before {
-  top: 0;
-}
-
-.burgerLines::after {
-  top: 100%;
-}
-
-.burgerLines[data-open]::before {
   top: 50%;
-  transform: rotate(45deg);
+  left: 50%;
+  transition: transform 0.6s var(--ease-out), opacity 0.4s;
 }
 
-.burgerLines[data-open]::after {
-  top: 50%;
-  transform: rotate(-45deg);
+/* la perle */
+.pin::before {
+  width: 0.36rem;
+  height: 0.36rem;
+  margin: -0.18rem 0 0 -0.18rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, #f0dcd6 55%, #b89a92);
+  box-shadow: 0 0 0.35rem rgb(255 240 235 / 0.8);
+}
+
+/* la croix (ouvert) */
+.pin::after {
+  width: 0.55rem;
+  height: 0.55rem;
+  margin: -0.275rem 0 0 -0.275rem;
+  background:
+    linear-gradient(45deg, transparent calc(50% - 0.5px), currentColor calc(50% - 0.5px) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    linear-gradient(-45deg, transparent calc(50% - 0.5px), currentColor calc(50% - 0.5px) calc(50% + 0.5px), transparent calc(50% + 0.5px));
+  opacity: 0;
+  transform: scale(0.4) rotate(-90deg);
+}
+
+.pin[data-open] {
+  transform: rotate(90deg);
+}
+
+.pin[data-open]::before {
+  opacity: 0;
+  transform: scale(0);
+}
+
+.pin[data-open]::after {
+  opacity: 1;
+  transform: none;
 }
 
 /* ---- Index latéral */
@@ -315,48 +335,14 @@
   inset: 0;
   z-index: 18;
   display: flex;
-  align-items: center;
-  padding: 6rem var(--gutter) 3rem;
-  background: var(--wine);
+  padding: 6rem calc(var(--gutter) + 0.5rem) 3rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background:
+    radial-gradient(60% 70% at 80% 55%, rgb(198 160 102 / 0.14), transparent 70%),
+    var(--wine);
   color: var(--milk);
   visibility: hidden;
-}
-
-.menuList {
-  margin: 0 auto;
-  padding: 0;
-  list-style: none;
-  width: min(60rem, 100%);
-}
-
-.menuRow {
-  overflow: hidden;
-  border-bottom: 1px solid color-mix(in srgb, var(--milk) 16%, transparent);
-}
-
-.menuLink {
-  display: flex;
-  align-items: baseline;
-  gap: 1.4rem;
-  width: 100%;
-  padding: 0.7rem 0;
-  border: 0;
-  background: none;
-  color: inherit;
-  font-family: var(--serif);
-  font-size: clamp(1.9rem, 5.2vh, 3.6rem);
-  font-weight: 320;
-  line-height: 1.1;
-  text-align: left;
-  cursor: pointer;
-  transition: color 0.4s, padding 0.6s var(--ease-out);
-}
-
-.menuLink:hover,
-.menuLink[data-active] {
-  padding-left: 1rem;
-  color: var(--gold-light);
-  font-style: italic;
 }
 
 /* ---- Intro */

@@ -13,7 +13,7 @@ export default function App() {
 
   const slides = useMemo(() => {
     const list = [{ id: 'accueil', label: t('nav.home'), theme: 'video', scrub: true, content: ({ active, scrub }) => <HeroSlide active={active} scrub={scrub} /> }]
-    services.forEach((service, i) => list.push({ id: service.id, label: localize(service.label), scrub: 0.45, scrubPause: 1, content: ({ go, active, scrub }) => <ServiceSlide service={service} index={i} active={active} scrub={scrub} onBook={() => {
+    services.forEach((service, i) => list.push({ id: service.id, label: localize(service.label), theme: 'cine', scrub: 0.45, scrubPause: 1, content: ({ go, active, scrub }) => <ServiceSlide service={service} index={i} active={active} scrub={scrub} onBook={() => {
             setPreset({ id: service.id, at: Date.now() })
             go(services.length + 1)
           }} /> }))

@@ -756,3 +756,188 @@
     height: 32svh;
   }
 }
+
+/* ==== Soins : plein écran cinéma ===========================================
+   La photo (et le geste du métier) occupe toute la hauteur d'un côté, sans
+   arche ; elle se fond dans le noir. Titre en grand, prestations dans un
+   panneau bordeaux translucide. */
+.layout.service {
+  --cine: #0c0607;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  grid-template-areas: 'copy .';
+  padding: 6.2rem var(--gutter-wide) 4.2rem;
+  background: var(--cine);
+  color: var(--milk);
+}
+
+.layout.service[data-flip] {
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  grid-template-areas: '. copy';
+}
+
+.service .visual {
+  position: absolute;
+  inset: 0 0 0 auto;
+  z-index: 0;
+  width: 60%;
+}
+
+.service[data-flip] .visual {
+  inset: 0 auto 0 0;
+}
+
+.service .arch {
+  position: absolute;
+  inset: 0;
+  right: auto;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  border-radius: 0;
+  background: var(--cine);
+}
+
+/* fondu de la photo dans le noir, côté texte et en bas */
+.service .visual::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, var(--cine) 0%, rgb(12 6 7 / 0.7) 16%, rgb(12 6 7 / 0.15) 42%, transparent 60%),
+    linear-gradient(0deg, rgb(12 6 7 / 0.75) 0%, transparent 26%),
+    linear-gradient(180deg, rgb(12 6 7 / 0.55) 0%, transparent 18%);
+}
+
+.service[data-flip] .visual::after {
+  background:
+    linear-gradient(270deg, var(--cine) 0%, rgb(12 6 7 / 0.7) 16%, rgb(12 6 7 / 0.15) 42%, transparent 60%),
+    linear-gradient(0deg, rgb(12 6 7 / 0.75) 0%, transparent 26%),
+    linear-gradient(180deg, rgb(12 6 7 / 0.55) 0%, transparent 18%);
+}
+
+.service .copy {
+  max-width: 36rem;
+}
+
+.service .eyebrow {
+  color: var(--gold-light);
+}
+
+.service .title {
+  font-size: clamp(3rem, min(7vw, 11svh), 7.6rem);
+  color: var(--milk);
+}
+
+.service .italic {
+  color: var(--gold-light);
+}
+
+.service .lead {
+  color: rgb(247 243 238 / 0.72);
+}
+
+/* prestations : panneau bordeaux translucide */
+.service .items {
+  margin-top: 1.8rem;
+  padding: 0.4rem 1.4rem;
+  border-radius: 1.2rem;
+  background: rgb(110 31 46 / 0.38);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  box-shadow: inset 0 0 0 1px rgb(226 197 143 / 0.22);
+}
+
+.service .item:first-child .itemRule {
+  display: none;
+}
+
+.service .itemRule {
+  background: rgb(247 243 238 / 0.14);
+}
+
+.service .itemTime {
+  color: rgb(247 243 238 / 0.6);
+}
+
+.service .itemPrice {
+  color: var(--gold-light);
+}
+
+.service .item[data-on] .itemName {
+  color: var(--gold-light);
+}
+
+.service .itemMark {
+  left: -0.9rem;
+}
+
+.service .button {
+  border-color: var(--milk);
+  color: var(--milk);
+}
+
+.service .buttonFill {
+  background: var(--milk);
+}
+
+.service .button:hover .buttonLabel {
+  color: var(--wine);
+}
+
+/* « dès 300 DH » : pastille de verre posée sur la photo */
+.service .badge,
+.service[data-flip] .badge {
+  inset: auto calc(var(--gutter) + 3.5rem) 5.4rem auto;
+  z-index: 2;
+  width: 7rem;
+  background: rgb(247 243 238 / 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--milk);
+  outline-color: rgb(226 197 143 / 0.6);
+}
+
+.service[data-flip] .badge {
+  inset: auto auto 2.4rem 2.2rem;
+}
+
+/* ---- Téléphones : la photo plein cadre en haut, le texte remonte dessus */
+@media (max-width: 760px), (orientation: portrait) and (max-width: 1000px) {
+  .layout.service,
+  .layout.service[data-flip] {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'copy';
+    gap: 0;
+    padding: calc(58svh) var(--gutter) 5.5rem;
+  }
+
+  .service .visual,
+  .service[data-flip] .visual {
+    inset: 0 0 auto;
+    width: 100%;
+    height: 70svh;
+  }
+
+  .service .visual::after,
+  .service[data-flip] .visual::after {
+    background:
+      linear-gradient(0deg, var(--cine) 0%, rgb(12 6 7 / 0.6) 22%, transparent 50%),
+      linear-gradient(180deg, rgb(12 6 7 / 0.6) 0%, transparent 22%);
+  }
+
+  .service .title {
+    font-size: clamp(2.6rem, 12vw, 3.8rem);
+  }
+
+  .service .items {
+    padding: 0.2rem 1rem;
+  }
+
+  .service .badge,
+  .service[data-flip] .badge {
+    inset: auto var(--gutter) 31% auto;
+    width: 5.2rem;
+  }
+}

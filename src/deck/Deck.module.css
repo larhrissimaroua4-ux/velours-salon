@@ -30,6 +30,11 @@
   color: var(--milk);
 }
 
+.slide[data-theme='cine'] {
+  background: #0c0607;
+  color: var(--milk);
+}
+
 .slide[data-theme='dark'] {
   background: var(--wine);
   color: var(--milk);
@@ -291,6 +296,10 @@
 
   .deck[data-dark] .bottomFade {
     background: linear-gradient(to top, var(--wine) 55%, transparent);
+  }
+
+  .deck[data-cine] .bottomFade {
+    background: linear-gradient(to top, #0c0607 55%, transparent);
   }
 }
 

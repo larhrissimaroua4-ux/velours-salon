@@ -56,7 +56,7 @@ const canScroll = (el, dir) => (dir > 0 ? el.scrollTop + el.clientHeight < el.sc
  * Diaporama plein écran : molette, glissé, clavier, menu et flèches.
  * Une slide dont le contenu dépasse défile d'abord en interne ([data-scroll]).
  *
- * @param {{ slides: { id: string, label: string, theme?: 'dark',
+ * @param {{ slides: { id: string, label: string, theme?: 'dark' | 'video' | 'cine',
  *   scrub?: boolean | number (longueur relative de l'animation au scroll),
  *   scrubPause?: number (étape où le contenu qui dépasse défile avant la suite), content: (ctx: { go, active, scrub }) => React.ReactNode }[] }} props
  */
@@ -357,14 +357,14 @@ export default function Deck({ slides }) {
   }, [menuOpen])
 
   const theme = slides[index].theme
-  const dark = theme === 'dark' || theme === 'video'
+  const dark = theme === 'dark' || theme === 'video' || theme === 'cine'
   const pick = (i) => {
     setMenuOpen(false)
     window.setTimeout(() => go(i), menuOpen ? 450 : 0)
   }
 
   return (
-    <div data-deck className={styles.deck} data-dark={dark || undefined} data-video={theme === 'video' || undefined}>
+    <div data-deck className={styles.deck} data-dark={dark || undefined} data-video={theme === 'video' || undefined} data-cine={theme === 'cine' || undefined}>
       <header className={styles.header}>
         <button type="button" className={styles.logo} onClick={() => go(0)}>
           VELOURS

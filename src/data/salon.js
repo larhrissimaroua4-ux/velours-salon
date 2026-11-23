@@ -40,7 +40,8 @@ export const services = [
   {
     id: 'cheveux',
     art: 'scissors',
-    image: '/images/services/cheveux',
+    // photo « après » de l'animation (mèche coupée)
+    image: '/images/acts/coiffure-apres',
     label: { fr: 'Coiffure', en: 'Hair' },
     title: { fr: ['Le geste', 'juste.'], en: ['The right', 'touch.'] },
     text: {

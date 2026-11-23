@@ -181,7 +181,7 @@ export default function ServiceSlide({ service, index, onBook, active, scrub }) 
             <>
               <div ref={veilRef} className={styles.veil} data-tone={act.tone} />
               <div className={styles.act}>
-                <act.Component onReady={onActReady} word={service.word ? localize(service.word) : undefined} />
+                <act.Component onReady={onActReady} />
               </div>
               <p ref={hintRef} className={styles.actHint} data-tone={act.tone}>
                 {t('hero.hint')}

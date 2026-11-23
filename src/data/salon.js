@@ -78,8 +78,8 @@ export const services = [
   {
     id: 'maquillage',
     art: 'lipstick',
-    word: { fr: 'Sublime', en: 'Gorgeous' },
-    image: '/images/services/maquillage',
+    // photo « après » de l'animation (rouge à lèvres posé)
+    image: '/images/acts/levres-apres',
     label: { fr: 'Maquillage', en: 'Make-up' },
     title: { fr: ['Votre jour,', 'sublimé.'], en: ['Your day,', 'elevated.'] },
     text: {

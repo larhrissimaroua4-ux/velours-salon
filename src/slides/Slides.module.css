@@ -39,10 +39,6 @@
   text-transform: uppercase;
 }
 
-.index {
-  font-variant-numeric: tabular-nums;
-  color: var(--gold-deep);
-}
 
 .rule {
   display: inline-block;
@@ -132,9 +128,6 @@
   transform: translateX(calc(var(--e, 0) * -3rem));
 }
 
-.service .number {
-  transform: translateY(calc(var(--p, 0) * -14%));
-}
 
 .service .badge {
   rotate: calc(var(--p, 0) * 180deg);
@@ -177,62 +170,13 @@
   transform: scaleX(1);
 }
 
-.veil {
-  position: absolute;
-  inset: 0;
-  background: rgb(26 7 12 / 0.84);
-  pointer-events: none;
-}
 
-.veil[data-tone='milk'] {
-  background: rgb(247 243 238 / 0.9);
-}
 
-.act {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
 
-.act svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
 
-.act [data-sway] {
-  transform-box: fill-box;
-  transform-origin: 50% 0;
-  animation: sway 4.5s ease-in-out infinite alternate;
-}
 
-@keyframes sway {
-  from {
-    rotate: -1.5deg;
-  }
-  to {
-    rotate: 1.5deg;
-  }
-}
 
-.actHint {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 1.1rem;
-  margin: 0;
-  font-size: 0.62rem;
-  letter-spacing: 0.22em;
-  text-align: center;
-  text-transform: uppercase;
-  color: var(--gold-light);
-  pointer-events: none;
-}
 
-.actHint[data-tone='milk'] {
-  color: var(--gold-deep);
-}
 
 .expand {
   position: absolute;
@@ -270,13 +214,6 @@
   transform: translateY(calc((1 - var(--e, 0)) * 2rem));
 }
 
-.expandIndex {
-  font-family: var(--sans);
-  font-size: 0.8rem;
-  font-style: normal;
-  letter-spacing: 0.18em;
-  color: var(--gold-light);
-}
 
 .archInner:has(.photo)::after {
   opacity: 0.08;
@@ -356,24 +293,7 @@
 }
 
 /* ---- Décors typographiques */
-.number {
-  position: absolute;
-  right: 4%;
-  bottom: -6vh;
-  z-index: -1;
-  font-family: var(--serif);
-  font-size: min(48vh, 34vw);
-  font-weight: 300;
-  line-height: 1;
-  color: transparent;
-  -webkit-text-stroke: 1px color-mix(in srgb, var(--gold) 55%, transparent);
-  pointer-events: none;
-}
 
-.layout[data-flip] .number {
-  right: auto;
-  left: 38%;
-}
 
 .giant {
   position: absolute;
@@ -480,34 +400,8 @@
   transform-origin: left;
 }
 
-.hintMouse {
-  position: relative;
-  width: 1.3rem;
-  height: 2rem;
-  border: 1px solid currentColor;
-  border-radius: 1rem;
-}
 
-.hintMouse::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 0.4rem;
-  width: 3px;
-  height: 6px;
-  margin-left: -1.5px;
-  border-radius: 2px;
-  background: currentColor;
-  animation: wheel 1.8s var(--ease-out) infinite;
-}
 
-@keyframes wheel {
-  80%,
-  100% {
-    transform: translateY(0.7rem);
-    opacity: 0;
-  }
-}
 
 /* ---- Prestations */
 .items {
@@ -863,15 +757,6 @@
   .itemMark {
     left: -1rem;
     width: 0.6rem;
-  }
-
-  .number,
-  .layout[data-flip] .number {
-    left: auto;
-    right: -4%;
-    bottom: auto;
-    top: 4rem;
-    font-size: 46vw;
   }
 
   .hint {

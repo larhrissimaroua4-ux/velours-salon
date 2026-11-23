@@ -15,10 +15,10 @@ const lerp = (a, b, k) => a + (b - a) * k
 
 /**
  * Slide d'une prestation, animée AU SCROLL (le deck fait avancer scrub.target) :
- *   0 → 0,55 dans l'arche, le geste du métier (goutte, ciseaux, vernis, rouge
- *            à lèvres : src/acts) sur la photo voilée ; en parallèle les
- *            prestations s'allument une à une, le chiffre monte, la pastille tourne ;
- *   0,55 → 0,6 le voile se lève sur la photo ; halte à 0,62 : sur téléphone,
+ *   0 → 0,55 dans l'arche, le geste du métier sur de vraies photos (goutte,
+ *            ciseaux, vernis, rouge à lèvres : src/acts) ; en parallèle les
+ *            prestations s'allument une à une et la pastille tourne ;
+ *   halte à 0,62 : sur téléphone,
  *            le contenu défile ici (cf. scrubPause dans App) ;
  *   0,6 → 1  l'arche s'agrandit jusqu'au plein écran, le nom du soin apparaît.
  * Le calque plein écran part exactement du cadre de l'arche (même photo, même
@@ -33,8 +33,6 @@ export default function ServiceSlide({ service, index, onBook, active, scrub }) 
   const expandRef = useRef(null)
   const activeRef = useRef(active)
   activeRef.current = active
-  const veilRef = useRef(null)
-  const hintRef = useRef(null)
   const actRef = useRef(null)
   const act = ACTS[service.art]
   const onActReady = useCallback((update) => {
@@ -73,11 +71,9 @@ export default function ServiceSlide({ service, index, onBook, active, scrub }) 
       if (Math.abs(current - shown) < 0.0002) return
       shown = current
 
-      // geste du métier dans l'arche, puis le voile se lève
+      // geste du métier dans l'arche (vraies photos)
       const t = still ? 1 : clamp01(current / 0.55)
-      actRef.current?.(t, veilRef.current)
-      if (veilRef.current) veilRef.current.style.opacity = still ? 0 : 1 - smooth(0.55, 0.62, current)
-      if (hintRef.current) hintRef.current.style.opacity = still ? 0 : 1 - smooth(0.005, 0.05, current)
+      actRef.current?.(t)
 
       const e = still ? 0 : smooth(0.6, 1, current)
       flag(activeRef.current && e > 0.45)
@@ -129,12 +125,8 @@ export default function ServiceSlide({ service, index, onBook, active, scrub }) 
 
   return (
     <div ref={rootRef} className={`${styles.layout} ${styles.service}`} data-flip={index % 2 ? '' : undefined}>
-      <span className={styles.number} aria-hidden="true">
-        <Split text={String(index + 1).padStart(2, '0')} />
-      </span>
       <div className={styles.copy}>
         <p data-fade className={styles.eyebrow}>
-          <span className={styles.index}>{String(index + 1).padStart(2, '0')}</span>
           <span data-line className={styles.rule} />
           {localize(service.label)}
         </p>
@@ -172,22 +164,6 @@ export default function ServiceSlide({ service, index, onBook, active, scrub }) 
             {photo ?? <LineArt name={service.art} className={styles.art} />}
             {photo && act?.inPhoto ? <act.Component onReady={onActReady} className={styles.photo} /> : null}
           </div>
-          {photo && act?.inPhoto ? (
-            <p ref={hintRef} className={styles.actHint}>
-              {t('hero.hint')}
-            </p>
-          ) : null}
-          {photo && act && !act.inPhoto ? (
-            <>
-              <div ref={veilRef} className={styles.veil} data-tone={act.tone} />
-              <div className={styles.act}>
-                <act.Component onReady={onActReady} />
-              </div>
-              <p ref={hintRef} className={styles.actHint} data-tone={act.tone}>
-                {t('hero.hint')}
-              </p>
-            </>
-          ) : null}
         </div>
         <div data-badge className={styles.badge}>
           <span>{copy.from}</span>
@@ -199,7 +175,6 @@ export default function ServiceSlide({ service, index, onBook, active, scrub }) 
         <div ref={expandRef} className={styles.expand} aria-hidden="true">
           {photo}
           <p className={styles.expandCaption}>
-            <span className={styles.expandIndex}>{String(index + 1).padStart(2, '0')}</span>
             {localize(service.label)}
           </p>
         </div>

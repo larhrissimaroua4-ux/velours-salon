@@ -136,7 +136,6 @@ export default function HeroSlide({ active, scrub }) {
           {hero.lead}
         </p>
         <p ref={hintRef} data-fade className={styles.hint}>
-          <span className={styles.hintMouse} aria-hidden="true" />
           {hero.hint}
           <span className={styles.hintBar} aria-hidden="true">
             <span />

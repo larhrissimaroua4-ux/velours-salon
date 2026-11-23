@@ -275,54 +275,6 @@
   }
 }
 
-.counter {
-  position: fixed;
-  left: var(--gutter);
-  bottom: max(1.4rem, env(safe-area-inset-bottom));
-  z-index: 15;
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
-  font-variant-numeric: tabular-nums;
-  color: var(--fg);
-  transition: color 0.8s 0.3s;
-}
-
-.counterNow {
-  display: inline-block;
-  overflow: hidden;
-  height: 1.1em;
-  line-height: 1.1;
-}
-
-.counterDigit {
-  display: inline-block;
-  animation: digit 1s var(--ease-out) 0.5s both;
-}
-
-@keyframes digit {
-  from {
-    transform: translateY(110%);
-  }
-}
-
-.counterBar {
-  position: relative;
-  width: 5rem;
-  height: 1px;
-  background: color-mix(in srgb, currentColor 25%, transparent);
-}
-
-.counterBar span {
-  position: absolute;
-  inset: 0;
-  background: var(--gold);
-  transform-origin: left;
-  transition: transform 1.2s var(--ease-out) 0.4s;
-}
-
 .arrows {
   position: fixed;
   right: var(--gutter);
@@ -408,15 +360,6 @@
   font-style: italic;
 }
 
-.menuIndex {
-  color: var(--gold-light);
-  font-family: var(--sans);
-  font-size: 0.72rem;
-  font-style: normal;
-  letter-spacing: 0.14em;
-  opacity: 0.6;
-}
-
 /* ---- Intro */
 .intro {
   position: fixed;
@@ -466,7 +409,4 @@
     letter-spacing: 0.26em;
   }
 
-  .counterBar {
-    width: 3rem;
-  }
 }

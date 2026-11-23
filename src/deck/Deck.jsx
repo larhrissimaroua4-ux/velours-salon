@@ -38,8 +38,8 @@ function leaveTimeline(el, dir) {
   const q = gsap.utils.selector(el)
   return gsap
     .timeline({ defaults: { ease: 'power3.in' } })
-    .to(q('[data-char]'), { yPercent: -110 * dir, duration: 0.55, stagger: 0.006 }, 0)
-    .to(q('[data-fade]'), { opacity: 0, y: -24 * dir, duration: 0.5, stagger: 0.02 }, 0)
+    .to(q('[data-char]'), { yPercent: -110 * dir, duration: 0.8, stagger: 0.008 }, 0)
+    .to(q('[data-fade]'), { opacity: 0, y: -24 * dir, duration: 0.7, stagger: 0.025 }, 0)
     .to(q('[data-zoom]'), { scale: 1.15, duration: 1.2, ease: 'power2.in' }, 0)
 }
 
@@ -106,7 +106,7 @@ export default function Deck({ slides }) {
       const finish = () => {
         gsap.set(fromEl, { visibility: 'hidden', clearProps: 'transform,clipPath,zIndex' })
         gsap.set(gsap.utils.selector(fromEl)('[data-char],[data-fade],[data-zoom]'), { clearProps: 'all' })
-        gsap.set(toEl, { clearProps: 'clipPath,zIndex' })
+        gsap.set(toEl, { clearProps: 'clipPath,zIndex,transform' })
         gsap.set([curtain, goldRef.current], { visibility: 'hidden' })
         curtain.parentElement.style.background = ''
         busyRef.current = false
@@ -132,11 +132,13 @@ export default function Deck({ slides }) {
       gsap
         .timeline({ onComplete: finish })
         .add(leaveTimeline(fromEl, dir), 0)
-        .to(fromEl, { scale: 0.9, yPercent: -5 * dir, duration: 1.4, ease: 'expo.inOut' }, 0)
-        .fromTo(goldRef.current, { clipPath: start }, { clipPath: end, duration: 1.15, ease: 'expo.inOut' }, 0.02)
-        .fromTo(curtain, { clipPath: start }, { clipPath: end, duration: 1.15, ease: 'expo.inOut' }, 0.12)
-        .fromTo(toEl, { clipPath: start }, { clipPath: end, duration: 1.15, ease: 'expo.inOut' }, 0.32)
-        .call(() => enter.play(), null, 0.62)
+        .to(fromEl, { scale: 0.86, yPercent: -5 * dir, duration: 2.1, ease: 'expo.inOut' }, 0)
+        .fromTo(goldRef.current, { clipPath: start }, { clipPath: end, duration: 1.75, ease: 'expo.inOut' }, 0.05)
+        .fromTo(curtain, { clipPath: start }, { clipPath: end, duration: 1.75, ease: 'expo.inOut' }, 0.22)
+        .fromTo(toEl, { clipPath: start }, { clipPath: end, duration: 1.75, ease: 'expo.inOut' }, 0.5)
+        // la nouvelle slide arrive en zoom arrière lent
+        .fromTo(toEl, { scale: 1.18 }, { scale: 1, duration: 2.6, ease: 'expo.out' }, 0.5)
+        .call(() => enter.play(), null, 1.0)
     },
     [count, slides, scrubFor],
   )
@@ -416,17 +418,6 @@ export default function Deck({ slides }) {
           </button>
         ))}
       </nav>
-      <div className={styles.counter} aria-hidden="true">
-        <span className={styles.counterNow}>
-          <span key={index} className={styles.counterDigit}>
-            {String(index + 1).padStart(2, '0')}
-          </span>
-        </span>
-        <span className={styles.counterBar}>
-          <span style={{ transform: `scaleX(${(index + 1) / count})` }} />
-        </span>
-        <span>{String(count).padStart(2, '0')}</span>
-      </div>
       <div className={styles.arrows}>
         <button type="button" onClick={() => go(index - 1)} disabled={index === 0} aria-label={t('deck.prev')}>
           ↑
@@ -442,7 +433,6 @@ export default function Deck({ slides }) {
           {slides.map((slide, i) => (
             <li key={slide.id} className={styles.menuRow}>
               <button type="button" data-menu-item className={styles.menuLink} data-active={i === index || undefined} onClick={() => pick(i)}>
-                <span className={styles.menuIndex}>{String(i + 1).padStart(2, '0')}</span>
                 {slide.label}
               </button>
             </li>
